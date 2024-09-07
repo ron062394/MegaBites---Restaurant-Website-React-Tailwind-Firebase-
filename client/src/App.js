@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import './App.css';
 import Header from './components/user/Header';
@@ -11,9 +11,18 @@ import NotFoundPage from './pages/NotFoundPage';
 import { Navigate } from 'react-router-dom';
 import Loading from './pages/Loading';
 
-
-
 function App() {
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    window.onload = () => {
+      setIsLoading(false);
+    };
+  }, []);
+
+  if (isLoading) {
+    return <Loading />;
+  }
 
   return (
     <div className="App">
@@ -26,8 +35,8 @@ function App() {
           <Route path="/menu" element={<Menu />} />
           <Route path="/not-found" element={<NotFoundPage />} />
           <Route path="*" element={<Navigate to="/not-found" replace />} />
-          {/* Add other routes here */}
           <Route path="/loading" element={<Loading />} />
+          {/* Add other routes here */}
         </Routes>
         <Footer />
       </Router>
