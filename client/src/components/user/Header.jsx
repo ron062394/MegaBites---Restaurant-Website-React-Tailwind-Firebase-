@@ -11,7 +11,7 @@ function Header() {
   };
 
   return (
-    <header id='header' className="sticky top-0 w-full shadow-lg z-50 bg-red-900 text-white">
+    <header id='header' className="sticky top-0 w-full shadow-lg z-50 bg-white text-gray-900">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between py-4">
           <Link to="/">
@@ -21,8 +21,8 @@ function Header() {
               animate="visible"
               variants={fadeInUp}
             >
-              <span className="italic font-bold relative text-shadow-md -top-2 text-gray-100">MEGA</span>
-              <span className="italic font-bold text-shadow-md bg-white">BITES</span>
+              <span className="italic font-bold relative text-shadow-md -top-2 bg-gray-900 text-white">Tonkotsu</span>
+              <span className="italic font-bold text-shadow-md bg-white text-gray-800">Corner</span>
             </motion.div>
           </Link>
 
@@ -36,7 +36,7 @@ function Header() {
                 transition={{ delay: index * 0.1 }}
                 className="mx-2"
               >
-                <Link to={item === 'Home' ? '/' : `/${item.toLowerCase().replace(/\s+/g, '-')}`} className="no-underline text-lg font-medium transition duration-300 text-gray-100">
+                <Link to={item === 'Home' ? '/' : `/${item.toLowerCase().replace(/\s+/g, '-')}`} className="no-underline text-lg font-medium transition duration-300 hover:text-gray-600">
                   {item}
                 </Link>
               </motion.div>
@@ -48,16 +48,16 @@ function Header() {
             animate="visible"
             variants={fadeInUp}
           >
-            <Link to="/sign-in" className="hidden md:inline-block btn px-4 py-2 rounded-full shadow-md hover:shadow-lg transition duration-300 border border-white text-white font-bold">
+            <Link to="/sign-in" className="hidden md:inline-block btn px-4 py-2 rounded-full shadow-md hover:shadow-lg transition duration-300 border border-gray-600 font-bold mr-4 hover:bg-gray-100">
               Sign In
             </Link>
-            <Link to="/register" className="hidden md:inline-block btn px-4 py-2 rounded-full shadow-md hover:shadow-lg transition duration-300 bg-white text-gray-800 font-bold">
+            <Link to="/register" className="hidden md:inline-block btn px-4 py-2 rounded-full shadow-md hover:shadow-lg transition duration-300 bg-gray-900 font-bold text-white hover:bg-gray-800">
               Register
             </Link>
           </motion.div>
 
           <button
-            className="md:hidden btn btn-link text-gray-800"
+            className="md:hidden btn btn-link text-gray-900"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             <svg className="bi bi-list" width="24" height="24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -69,7 +69,7 @@ function Header() {
 
       {isMobileMenuOpen && (
         <motion.div 
-          className="md:hidden bg-gray-100 opacity-95"
+          className="md:hidden bg-white"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
@@ -79,7 +79,7 @@ function Header() {
               <Link 
                 key={item}
                 to={item === 'Home' ? '/' : `/${item.toLowerCase().replace(/\s+/g, '-')}`} 
-                className="block py-2 no-underline text-lg font-medium transition duration-300 text-blue-600"
+                className="block py-2 no-underline text-lg font-medium transition duration-300 hover:text-gray-600"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 {item}
@@ -87,14 +87,14 @@ function Header() {
             ))}
             <Link 
               to="/sign-in" 
-              className="block mt-3 btn px-4 py-2 rounded-full shadow-md hover:shadow-lg transition duration-300 text-center border border-white text-white font-bold"
+              className="block mt-3 btn px-4 py-2 rounded-full shadow-md hover:shadow-lg transition duration-300 text-center border border-gray-600 font-bold hover:bg-gray-100"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Sign In
             </Link>
             <Link 
               to="/register" 
-              className="block mt-3 btn px-4 py-2 rounded-full shadow-md hover:shadow-lg transition duration-300 text-center bg-white text-gray-800 font-bold"
+              className="block mt-3 btn px-4 py-2 rounded-full shadow-md hover:shadow-lg transition duration-300 text-center bg-gray-900 font-bold text-white hover:bg-gray-800"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Register
