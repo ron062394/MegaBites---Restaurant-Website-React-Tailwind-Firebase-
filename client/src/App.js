@@ -15,6 +15,9 @@ import Product from './pages/user/Product';
 import Cart from './pages/user/Cart';
 import Checkout from './pages/user/Checkout';
 import OrderSuccessful from './pages/user/OrderSuccessful';
+import Careers from './pages/user/Careers';
+import AboutUs from './pages/user/AboutUs';
+import Contact from './pages/user/Contact';
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -45,6 +48,9 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/order-successful" element={<OrderSuccessful />} />
+          <Route path="/careers" element={<Careers />} />
+          <Route path="/about-us" element={<AboutUs />} />
+          <Route path="/contact" element={<Contact />} />
           {/* Add other routes here */}
         </Routes>
         <Footer />

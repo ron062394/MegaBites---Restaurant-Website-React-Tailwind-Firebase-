@@ -10,6 +10,14 @@ function Header() {
     visible: { opacity: 1, y: 0 },
   };
 
+  const navItems = [
+    { name: 'Home', path: '/' },
+    { name: 'Menu', path: '/menu' },
+    { name: 'About Us', path: '/about-us' },
+    { name: 'Contact', path: '/contact' },
+    { name: 'Careers', path: '/careers' },
+  ];
+
   return (
     <header id='header' className="sticky top-0 w-full shadow-lg z-50 bg-white text-gray-900">
       <div className="container mx-auto px-4">
@@ -27,17 +35,17 @@ function Header() {
           </Link>
 
           <nav className="hidden md:flex space-x-6">
-            {['Home', 'Menu', 'About Us', 'Contact Us', 'Careers'].map((item, index) => (
+            {navItems.map((item, index) => (
               <motion.div
-                key={item}
+                key={item.name}
                 initial="hidden"
                 animate="visible"
                 variants={fadeInUp}
                 transition={{ delay: index * 0.1 }}
                 className="mx-2"
               >
-                <Link to={item === 'Home' ? '/' : `/${item.toLowerCase().replace(/\s+/g, '-')}`} className="no-underline text-lg font-medium transition duration-300 hover:text-gray-600">
-                  {item}
+                <Link to={item.path} className="no-underline text-lg font-medium transition duration-300 hover:text-gray-600">
+                  {item.name}
                 </Link>
               </motion.div>
             ))}
@@ -75,14 +83,14 @@ function Header() {
           transition={{ duration: 0.3 }}
         >
           <div className="container mx-auto px-4 py-3">
-            {['Home', 'Menu', 'About Us', 'Contact Us', 'Careers'].map((item) => (
+            {navItems.map((item) => (
               <Link 
-                key={item}
-                to={item === 'Home' ? '/' : `/${item.toLowerCase().replace(/\s+/g, '-')}`} 
+                key={item.name}
+                to={item.path}
                 className="block py-2 no-underline text-lg font-medium transition duration-300 hover:text-gray-600"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
-                {item}
+                {item.name}
               </Link>
             ))}
             <Link 
