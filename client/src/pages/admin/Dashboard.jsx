@@ -108,57 +108,34 @@ const Dashboard = () => {
         <h2 className="text-2xl font-bold mb-6">Admin Panel</h2>
         <nav>
           <ul>
-            <li className="mb-4">
-              <button onClick={() => setActiveComponent('dashboard')} className="flex items-center text-gray-300 hover:text-white">
-                <FaTachometerAlt className="mr-2" />
-                Dashboard
-              </button>
-            </li>
-            <li className="mb-4">
-              <button onClick={() => setActiveComponent('orders')} className="flex items-center text-gray-300 hover:text-white">
-                <FaClipboardList className="mr-2" />
-                Orders
-              </button>
-            </li>
-            <li className="mb-4">
-              <button onClick={() => setActiveComponent('menu')} className="flex items-center text-gray-300 hover:text-white">
-                <FaList className="mr-2" />
-                Menu Items
-              </button>
-            </li>
-            <li className="mb-4">
-              <button onClick={() => setActiveComponent('users')} className="flex items-center text-gray-300 hover:text-white">
-                <FaUsers className="mr-2" />
-                Users
-              </button>
-            </li>
-            <li className="mb-4">
-              <button onClick={() => setActiveComponent('reports')} className="flex items-center text-gray-300 hover:text-white">
-                <FaChartLine className="mr-2" />
-                Reports
-              </button>
-            </li>
-            <li className="mb-4">
-              <button onClick={() => setActiveComponent('reservations')} className="flex items-center text-gray-300 hover:text-white">
-                <FaUtensils className="mr-2" />
-                Reservations
-              </button>
-            </li>
-            <li className="mb-4">
-              <button onClick={() => setActiveComponent('notifications')} className="flex items-center text-gray-300 hover:text-white">
-                <FaBell className="mr-2" />
-                Notifications
-                {notifications.length > 0 && (
-                  <span className="bg-red-500 text-white rounded-full px-2 py-1 text-xs ml-2">
-                    {notifications.length}
-                  </span>
-                )}
-              </button>
-            </li>
+            {[
+              { name: 'Dashboard', icon: FaTachometerAlt, component: 'dashboard' },
+              { name: 'Orders', icon: FaClipboardList, component: 'orders' },
+              { name: 'Menu Items', icon: FaList, component: 'menu' },
+              { name: 'Users', icon: FaUsers, component: 'users' },
+              { name: 'Reports', icon: FaChartLine, component: 'reports' },
+              { name: 'Reservations', icon: FaUtensils, component: 'reservations' },
+              { name: 'Notifications', icon: FaBell, component: 'notifications' },
+            ].map((item) => (
+              <li key={item.name} className="mb-4">
+                <button 
+                  onClick={() => setActiveComponent(item.component)} 
+                  className={`flex items-center text-gray-300 hover:text-white transition-colors duration-200 ${activeComponent === item.component ? 'text-white' : ''}`}
+                >
+                  <item.icon className="mr-2" />
+                  {item.name}
+                  {item.name === 'Notifications' && notifications.length > 0 && (
+                    <span className="bg-red-500 text-white rounded-full px-2 py-1 text-xs ml-2">
+                      {notifications.length}
+                    </span>
+                  )}
+                </button>
+              </li>
+            ))}
           </ul>
         </nav>
       </div>
-      <button onClick={handleLogout} className="flex items-center text-gray-300 hover:text-white mt-auto">
+      <button onClick={handleLogout} className="flex items-center text-gray-300 hover:text-white mt-auto transition-colors duration-200">
         <FaSignOutAlt className="mr-2" />
         Logout
       </button>
@@ -204,15 +181,6 @@ const Dashboard = () => {
                 </LineChart>
               </ResponsiveContainer>
             </motion.div>
-            <motion.div
-              className="mt-8"
-              initial="hidden"
-              animate="visible"
-              variants={fadeInUp}
-            >
-              <h2 className="text-2xl font-bold mb-4">Recent Notifications</h2>
-              <Notifications notifications={notifications.slice(0, 3)} />
-            </motion.div>
           </>
         );
       case 'orders':
@@ -226,16 +194,16 @@ const Dashboard = () => {
       case 'reservations':
         return <Reservations />;
       case 'notifications':
-        return <Notifications notifications={notifications} />;
+        return <Notifications />;
       default:
         return null;
     }
   };
 
   return (
-    <div className="flex">
+    <div className="flex bg-gray-100 min-h-screen">
       <Sidebar />
-      <div className="flex-1 p-8">
+      <div className="flex-1 p-8 overflow-y-auto">
         {renderComponent()}
       </div>
     </div>

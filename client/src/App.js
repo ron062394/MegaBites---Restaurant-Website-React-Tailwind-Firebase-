@@ -6,7 +6,7 @@ import Homepage from './pages/user/Homepage';
 import Footer from './components/user/Footer'; 
 import Signin from './pages/user/Signin';
 import Signup from './pages/user/Signup';
-import Menu from './components/user/Menu';
+import Menu from './pages/user/Menu';
 import NotFoundPage from './pages/NotFoundPage';
 import { Navigate } from 'react-router-dom';
 import Loading from './pages/Loading';
@@ -34,6 +34,7 @@ function App() {
   return (
     <div className="App">
       <Router>
+        <Header />
         <Routes>
           <Route path="/" element={<Homepage />} />
           <Route path="/sign-in" element={<Signin />} />
@@ -52,6 +53,7 @@ function App() {
           <Route path="/admin" element={<Dashboard />} />
           {/* Add other routes here */}
         </Routes>
+        <Footer />
       </Router>
 
     </div>
