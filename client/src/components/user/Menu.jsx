@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { FaShoppingCart } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { Link } from 'react-router-dom';
 
 const Menu = () => {
   const [cart, setCart] = useState([]);
@@ -74,9 +75,13 @@ const Menu = () => {
                     className="bg-white rounded-lg overflow-hidden shadow-lg transform transition duration-500 hover:scale-105"
                     whileHover={{ y: -5 }}
                   >
-                    <img src={item.image} alt={item.name} className="w-full h-56 object-cover" />
+                    <Link to={`/product/`}>
+                      <img src={item.image} alt={item.name} className="w-full h-56 object-cover cursor-pointer" />
+                    </Link>
                     <div className="p-6">
-                      <h3 className="text-2xl font-semibold text-gray-900 mb-2">{item.name}</h3>
+                      <Link to={`/product/${item.id}`}>
+                        <h3 className="text-2xl font-semibold text-gray-900 mb-2 cursor-pointer">{item.name}</h3>
+                      </Link>
                       <p className="text-gray-600 mb-4">{item.description}</p>
                       <div className="flex justify-between items-center">
                         <p className="text-xl font-bold text-gray-900">${item.price.toFixed(2)}</p>

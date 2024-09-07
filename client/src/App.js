@@ -10,6 +10,11 @@ import Menu from './components/user/Menu';
 import NotFoundPage from './pages/NotFoundPage';
 import { Navigate } from 'react-router-dom';
 import Loading from './pages/Loading';
+import Dashboard from './pages/admin/Dashboard';
+import Product from './pages/user/Product';
+import Cart from './pages/user/Cart';
+import Checkout from './pages/user/Checkout';
+import OrderSuccessful from './pages/user/OrderSuccessful';
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
@@ -36,9 +41,18 @@ function App() {
           <Route path="/not-found" element={<NotFoundPage />} />
           <Route path="*" element={<Navigate to="/not-found" replace />} />
           <Route path="/loading" element={<Loading />} />
+          <Route path="/product" element={<Product />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/order-successful" element={<OrderSuccessful />} />
           {/* Add other routes here */}
         </Routes>
         <Footer />
+      </Router>
+      <Router>
+        <Routes>
+          <Route path="/admin" element={<Dashboard />} />
+        </Routes>
       </Router>
     </div>
   );
