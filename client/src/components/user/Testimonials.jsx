@@ -1,41 +1,61 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 
 const Testimonials = () => {
   const testimonials = [
     {
       id: 1,
       name: "John Doe",
-      image: "https://via.placeholder.com/100x100",
-      quote: "The food here is absolutely amazing! I can't get enough of their delicious dishes.",
+      image: "https://i.pravatar.cc/100?img=1",
+      quote: "The tonkotsu ramen here is absolutely amazing! I can't get enough of their rich, flavorful broth.",
       rating: 5,
     },
     {
       id: 2,
       name: "Jane Smith",
-      image: "https://via.placeholder.com/100x100",
-      quote: "Great atmosphere and excellent service. I highly recommend this restaurant to everyone!",
+      image: "https://i.pravatar.cc/100?img=2",
+      quote: "Great atmosphere and excellent service. Their spicy miso ramen is a must-try!",
       rating: 4,
     },
     {
       id: 3,
       name: "Mike Johnson",
-      image: "https://via.placeholder.com/100x100",
-      quote: "The chef's special was out of this world. I'll definitely be coming back for more.",
+      image: "https://i.pravatar.cc/100?img=3",
+      quote: "The chef's special ramen was out of this world. I'll definitely be coming back for more.",
       rating: 5,
     },
   ];
 
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+  };
+
   return (
-    <section className="bg-gray-100 py-16">
+    <section className="bg-gradient-to-r from-gray-900 to-black py-16">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-extrabold text-gray-900 text-center mb-12">What Our Customers Say</h2>
+        <motion.h2 
+          className="text-4xl font-extrabold text-white text-center mb-12"
+          initial="hidden"
+          animate="visible"
+          variants={fadeInUp}
+        >
+          What Our Ramen Lovers Say
+        </motion.h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {testimonials.map((testimonial) => (
-            <div key={testimonial.id} className="bg-white rounded-lg shadow-md p-6">
+          {testimonials.map((testimonial, index) => (
+            <motion.div 
+              key={testimonial.id} 
+              className="bg-white bg-opacity-10 rounded-lg shadow-lg p-6 backdrop-filter backdrop-blur-lg"
+              initial="hidden"
+              animate="visible"
+              variants={fadeInUp}
+              transition={{ delay: index * 0.1 }}
+            >
               <div className="flex items-center mb-4">
-                <img src={testimonial.image} alt={testimonial.name} className="w-12 h-12 rounded-full mr-4" />
+                <img src={testimonial.image} alt={testimonial.name} className="w-16 h-16 rounded-full mr-4 border-2 border-yellow-400" />
                 <div>
-                  <h3 className="text-lg font-semibold">{testimonial.name}</h3>
+                  <h3 className="text-lg font-semibold text-white">{testimonial.name}</h3>
                   <div className="flex">
                     {[...Array(testimonial.rating)].map((_, i) => (
                       <svg key={i} className="w-5 h-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
@@ -45,8 +65,8 @@ const Testimonials = () => {
                   </div>
                 </div>
               </div>
-              <p className="text-gray-600 italic">"{testimonial.quote}"</p>
-            </div>
+              <p className="text-gray-300 italic">"{testimonial.quote}"</p>
+            </motion.div>
           ))}
         </div>
       </div>

@@ -18,6 +18,7 @@ const Signup = () => {
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
 
+  
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
