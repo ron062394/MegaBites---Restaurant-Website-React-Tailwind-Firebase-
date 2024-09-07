@@ -18,7 +18,6 @@ import OrderSuccessful from './pages/user/OrderSuccessful';
 import Careers from './pages/user/Careers';
 import AboutUs from './pages/user/AboutUs';
 import Contact from './pages/user/Contact';
-
 function App() {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -35,7 +34,6 @@ function App() {
   return (
     <div className="App">
       <Router>
-        <Header />
         <Routes>
           <Route path="/" element={<Homepage />} />
           <Route path="/sign-in" element={<Signin />} />
@@ -51,15 +49,11 @@ function App() {
           <Route path="/careers" element={<Careers />} />
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/admin" element={<Dashboard />} />
           {/* Add other routes here */}
         </Routes>
-        <Footer />
       </Router>
-      <Router>
-        <Routes>
-          <Route path="/admin" element={<Dashboard />} />
-        </Routes>
-      </Router>
+
     </div>
   );
 }
