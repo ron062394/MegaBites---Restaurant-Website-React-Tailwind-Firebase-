@@ -18,6 +18,8 @@ import OrderSuccessful from './pages/user/OrderSuccessful';
 import Careers from './pages/user/Careers';
 import AboutUs from './pages/user/AboutUs';
 import Contact from './pages/user/Contact';
+import PrivacyPolicy from './pages/user/PrivacyPolicy';
+import DataDeletion from './pages/user/DataDeletion';
 function App() {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -51,6 +53,8 @@ function App() {
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/admin" element={<Dashboard />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/data-deletion" element={<DataDeletion />} />
           {/* Add other routes here */}
         </Routes>
         <Footer />

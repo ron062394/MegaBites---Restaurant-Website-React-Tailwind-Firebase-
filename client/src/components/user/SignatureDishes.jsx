@@ -13,28 +13,28 @@ const SignatureDishes = () => {
     {
       name: "Garlic Tonkotsu",
       description: "Rich pork bone broth, tender chashu pork, soft-boiled egg, bamboo shoots, wood ear mushrooms, and garlic oil.",
-      image: "https://d3nrav3lya8lya.cloudfront.net/dishes/garlic-tonkotsu.webp",
+      image: "https://placehold.co/400x300?text=Garlic+Tonkotsu",
       rating: 4.9,
       price: "$14.99"
     },
     {
       name: "Yuzu Shio Ramen",
       description: "Light and refreshing chicken-seafood broth infused with yuzu citrus. Topped with pork chashu, menma, soft-boiled egg.",
-      image: "https://d3nrav3lya8lya.cloudfront.net/dishes/yuzu-shio-ramen.webp",
+      image: "https://placehold.co/400x300?text=Yuzu+Shio+Ramen",
       rating: 4.7,
       price: "$15.99"
     },
     {
       name: "Spicy Ramen",
       description: "Fiery red broth with ground pork and chicken, spicy bean paste, and chili oil. Topped with chashu pork and vegetables.",
-      image: "https://d3nrav3lya8lya.cloudfront.net/dishes/spicy-ramen.webp",
+      image: "https://placehold.co/400x300?text=Spicy+Ramen",
       rating: 4.8,
       price: "$14.99"
     },
     {
       name: "Shoyu Ramen",
       description: "Classic soy sauce based broth with wavy noodles. Topped with chashu pork, menma, nori, and ajitama egg.",
-      image: "https://d3nrav3lya8lya.cloudfront.net/dishes/shoyu-ramen.webp",
+      image: "https://placehold.co/400x300?text=Shoyu+Ramen",
       rating: 4.6,
       price: "$13.99"
     }
@@ -60,7 +60,7 @@ const SignatureDishes = () => {
             animate="visible"
             variants={fadeInUp}
           >
-            <img src="https://wallpapers.com/images/hd/traditional-hakata-ramen-flat-lay-3bck0xrlmu3mqbke.jpg" alt="Signature Ramen" className="w-full h-full object-cover rounded-lg shadow-lg" />
+            <img src="https://placehold.co/800x600?text=Signature+Ramen" alt="Signature Ramen" className="w-full h-full object-cover rounded-lg shadow-lg" />
           </motion.div>
           <div className="lg:w-1/2 grid grid-cols-1 sm:grid-cols-2 gap-4">
             {dishes.map((dish, index) => (
@@ -72,6 +72,7 @@ const SignatureDishes = () => {
                 variants={fadeInUp}
                 transition={{ delay: index * 0.1 }}
               >
+                <img src={dish.image} alt={dish.name} className="w-full h-48 object-cover" />
                 <div className="p-4">
                   <h3 className="text-xl font-semibold text-white mb-2">{dish.name}</h3>
                   <p className="text-gray-300 text-sm mb-3">{dish.description}</p>

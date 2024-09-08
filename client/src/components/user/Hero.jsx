@@ -33,7 +33,7 @@ const Hero = () => {
   ];
 
   return (
-    <div className="hero min-h-[70vh] h-[70vh] flex bg-gradient-to-r from-gray-900 to-black text-white py-20">
+    <div className="hero min-h-[70vh] h-[70vh] flex bg-gradient-to-r from-gray-900 to-black text-white py-24">
       <div className="container mx-auto px-4 py-8 relative flex flex-col lg:flex-row items-center">
         <motion.div
           initial="hidden"

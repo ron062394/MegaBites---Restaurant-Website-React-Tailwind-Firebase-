@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FaLock, FaUser, FaSignInAlt, FaFacebook, FaTwitter, FaGoogle } from 'react-icons/fa';
+import { FaLock, FaUser, FaSignInAlt, FaFacebook, FaGoogle } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Logo from '../../components/utils/Logo';
+import { useLogin } from '../../hooks/useLogin';
+
 
 
 const Signin = () => {
@@ -14,6 +16,9 @@ const Signin = () => {
   });
   const [error, setError] = useState('');
   const navigate = useNavigate();
+  const { signin, isLoading, error: signinError } = useLogin();
+  const { loginWithGoogle, isLoading: isGoogleLoading, error: googleError } = useLogin();
+  const { loginWithFacebook, isLoading: isFacebookLoading, error: facebookError } = useLogin();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -28,8 +33,12 @@ const Signin = () => {
     setError('');
 
     try {
-      // TODO: Implement actual signin logic
-      console.log('Signin attempt with:', formData);
+      await signin(formData.email, formData.password);
+      if (signinError) {
+        setError(signinError);
+        toast.error(signinError);
+        return;
+      }
       toast.success('Login successful');
       navigate('/');
     } catch (error) {
@@ -37,6 +46,45 @@ const Signin = () => {
       toast.error('An error occurred. Please try again.');
     }
   };
+
+  const handleGoogleLogin = async () => {
+    try {
+      await loginWithGoogle();
+      if (googleError) {
+        setError(googleError);
+        toast.error(googleError);
+        return;
+      }
+      toast.success('Login successful');
+      navigate('/');
+    } catch (error) {
+      setError('An error occurred. Please try again.');
+      toast.error('An error occurred. Please try again.');
+    }
+  };
+
+  const handleFacebookLogin = async () => {
+    try {
+      await loginWithFacebook();
+      if (facebookError) {
+        if (facebookError.includes("Can't Load URL")) {
+          setError("Facebook login is currently unavailable. Please try another method.");
+          toast.error("Facebook login is currently unavailable. Please try another method.");
+        } else {
+          setError(facebookError);
+          toast.error(facebookError);
+        }
+        return; 
+      }
+      toast.success('Login successful');
+      navigate('/');
+    } catch (error) {
+      setError('An error occurred. Please try again.');
+      toast.error('An error occurred. Please try again.');
+    }
+  };
+  
+
 
   const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
@@ -155,13 +203,14 @@ const Signin = () => {
                   </div>
                 </div>
 
-                <div className="mt-8 grid grid-cols-3 gap-4">
-                  {[FaFacebook, FaTwitter, FaGoogle].map((Icon, index) => (
+                <div className="mt-8 grid grid-cols-2 gap-4">
+                  {[FaFacebook, FaGoogle].map((Icon, index) => (
                     <motion.button 
                       key={index} 
                       className="w-full inline-flex justify-center py-3 px-5 border border-gray-300 rounded-full shadow-sm bg-white text-lg font-medium text-gray-500 hover:bg-gray-50 transition duration-300 ease-in-out"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
+                      onClick={index === 0 ? handleFacebookLogin : handleGoogleLogin}
                     >
                       <Icon className="w-6 h-6" />
                     </motion.button>

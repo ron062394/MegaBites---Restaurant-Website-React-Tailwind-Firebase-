@@ -5,6 +5,7 @@ import { FaLock, FaUser, FaEnvelope, FaUserPlus, FaFacebook, FaTwitter, FaGoogle
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Logo from '../../components/utils/Logo';
+import { useSignup, signupWithGoogle } from '../../hooks/useSignup';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -18,8 +19,8 @@ const Signup = () => {
   const [error, setError] = useState('');
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
+  const { signup, signupWithGoogle, isLoading, error: signupError } = useSignup();
 
-  
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prevData) => ({
@@ -39,8 +40,28 @@ const Signup = () => {
     }
 
     try {
-      // TODO: Implement actual signup logic
-      console.log('Signup attempt with:', formData);
+      await signup(formData.email, formData.password);
+      if (signupError) {
+        setError(signupError);
+        toast.error(signupError);
+        return;
+      }
+      toast.success('Account created successfully');
+      navigate('/');
+    } catch (error) {
+      setError('An error occurred. Please try again.');
+      toast.error('An error occurred. Please try again.');
+    }
+  };
+
+  const handleGoogleSignup = async () => {
+    try {
+      await signupWithGoogle();
+      if (signupError) {
+        setError(signupError);
+        toast.error(signupError);
+        return;
+      } 
       toast.success('Account created successfully');
       navigate('/');
     } catch (error) {
@@ -173,9 +194,10 @@ const Signup = () => {
                       whileTap={{ scale: 0.95 }}
                       className="flex-1 ml-2 justify-center py-2 px-4 border border-transparent rounded-full shadow-lg text-lg font-medium text-white bg-gray-700 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-300 ease-in-out"
                       type="submit"
+                      disabled={isLoading}
                     >
                       <FaUserPlus className="mr-3 inline" />
-                      <span>Sign Up</span>
+                      <span>{isLoading ? 'Signing Up...' : 'Sign Up'}</span>
                     </motion.button>
                   )}
                 </div>
@@ -200,6 +222,7 @@ const Signup = () => {
                       className="w-full inline-flex justify-center py-3 px-5 border border-gray-300 rounded-full shadow-sm bg-white text-lg font-medium text-gray-500 hover:bg-gray-50 transition duration-300 ease-in-out"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
+                      onClick={handleGoogleSignup}
                     >
                       <Icon className="w-6 h-6" />
                     </motion.button>

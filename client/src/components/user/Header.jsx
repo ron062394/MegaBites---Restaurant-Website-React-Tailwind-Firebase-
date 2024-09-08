@@ -1,10 +1,17 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Logo from '../utils/Logo';
+import { useLogout } from '../../hooks/useLogout';
+import { useAuthContext } from '../../hooks/useAuthContext';
+import { toast } from 'react-toastify';
+import { FaShoppingCart } from 'react-icons/fa';
 
 function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { logout } = useLogout();
+  const { user } = useAuthContext();
+  const navigate = useNavigate();
 
   const fadeInUp = {
     hidden: { opacity: 0, y: -20 },
@@ -19,8 +26,18 @@ function Header() {
     { name: 'Careers', path: '/careers' },
   ];
 
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.success('Logged out successfully');
+      navigate('/');
+    } catch (error) {
+      toast.error('Failed to log out');
+    }
+  };
+
   return (
-    <header id='header' className="sticky top-0 w-full shadow-lg z-50 bg-white text-gray-900">
+    <header id='header' className="sticky top-0 w-full shadow-lg z-50 bg-gradient-to-r from-gray-900 to-black text-white">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between py-4">
           <Logo />
@@ -34,7 +51,7 @@ function Header() {
                 transition={{ delay: index * 0.1 }}
                 className="mx-2"
               >
-                <Link to={item.path} className="no-underline text-lg font-medium transition duration-300 hover:text-gray-600">
+                <Link to={item.path} className="no-underline text-lg font-medium transition duration-300 hover:text-yellow-400">
                   {item.name}
                 </Link>
               </motion.div>
@@ -45,17 +62,31 @@ function Header() {
             initial="hidden"
             animate="visible"
             variants={fadeInUp}
+            className="flex items-center"
           >
-            <Link to="/sign-in" className="hidden md:inline-block btn px-4 py-2 rounded-full shadow-md hover:shadow-lg transition duration-300 border border-gray-600 font-bold mr-4 hover:bg-gray-100">
-              Sign In
-            </Link>
-            <Link to="/register" className="hidden md:inline-block btn px-4 py-2 rounded-full shadow-md hover:shadow-lg transition duration-300 bg-gray-900 font-bold text-white hover:bg-gray-800">
-              Register
-            </Link>
+            {user ? (
+              <>
+                <Link to="/cart" className="mr-4">
+                  <FaShoppingCart className="text-2xl text-yellow-400 hover:text-yellow-500 transition duration-300" />
+                </Link>
+                <button onClick={handleLogout} className="hidden md:inline-block btn px-4 py-2 rounded-full shadow-md hover:shadow-lg transition duration-300 border border-yellow-400 font-bold hover:bg-yellow-400 hover:text-gray-900">
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link to="/sign-in" className="hidden md:inline-block btn px-4 py-2 rounded-full shadow-md hover:shadow-lg transition duration-300 border border-yellow-400 font-bold mr-4 hover:bg-yellow-400 hover:text-gray-900">
+                  Sign In
+                </Link>
+                <Link to="/register" className="hidden md:inline-block btn px-4 py-2 rounded-full shadow-md hover:shadow-lg transition duration-300 bg-yellow-400 font-bold text-gray-900 hover:bg-yellow-500">
+                  Register
+                </Link>
+              </>
+            )}
           </motion.div>
 
           <button
-            className="md:hidden btn btn-link text-gray-900"
+            className="md:hidden btn btn-link text-white"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           >
             <svg className="bi bi-list" width="24" height="24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
@@ -67,7 +98,7 @@ function Header() {
 
       {isMobileMenuOpen && (
         <motion.div 
-          className="md:hidden bg-white"
+          className="md:hidden bg-gray-900"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
@@ -77,26 +108,49 @@ function Header() {
               <Link 
                 key={item.name}
                 to={item.path}
-                className="block py-2 no-underline text-lg font-medium transition duration-300 hover:text-gray-600"
+                className="block py-2 no-underline text-lg font-medium transition duration-300 hover:text-yellow-400"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 {item.name}
               </Link>
             ))}
-            <Link 
-              to="/sign-in" 
-              className="block mt-3 btn px-4 py-2 rounded-full shadow-md hover:shadow-lg transition duration-300 text-center border border-gray-600 font-bold hover:bg-gray-100"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Sign In
-            </Link>
-            <Link 
-              to="/register" 
-              className="block mt-3 btn px-4 py-2 rounded-full shadow-md hover:shadow-lg transition duration-300 text-center bg-gray-900 font-bold text-white hover:bg-gray-800"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Register
-            </Link>
+            {user ? (
+              <>
+                <Link 
+                  to="/cart" 
+                  className="block py-2 no-underline text-lg font-medium transition duration-300 hover:text-yellow-400"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <FaShoppingCart className="inline mr-2" /> Cart
+                </Link>
+                <button 
+                  onClick={() => {
+                    handleLogout();
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className="block mt-3 btn px-4 py-2 rounded-full shadow-md hover:shadow-lg transition duration-300 text-center border border-yellow-400 font-bold hover:bg-yellow-400 hover:text-gray-900 w-full"
+                >
+                  Logout
+                </button>
+              </>
+            ) : (
+              <>
+                <Link 
+                  to="/sign-in" 
+                  className="block mt-3 btn px-4 py-2 rounded-full shadow-md hover:shadow-lg transition duration-300 text-center border border-yellow-400 font-bold hover:bg-yellow-400 hover:text-gray-900"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Sign In
+                </Link>
+                <Link 
+                  to="/register" 
+                  className="block mt-3 btn px-4 py-2 rounded-full shadow-md hover:shadow-lg transition duration-300 text-center bg-yellow-400 font-bold text-gray-900 hover:bg-yellow-500"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Register
+                </Link>
+              </>
+            )}
           </div>
         </motion.div>
       )}
