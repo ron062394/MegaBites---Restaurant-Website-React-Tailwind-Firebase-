@@ -29,11 +29,15 @@ const Hero = () => {
           variants={fadeInUp}
           className="lg:w-1/2 w-full text-center lg:text-left mb-10 lg:mb-0"
         >
-          <h1 className="text-4xl lg:text-6xl font-bold mb-6">
-            Welcome to<br />Tonkotsu Corner
+          <h1 className="text-4xl lg:text-6xl font-bold mb-6 text-shadow-lg">
+            Welcome to<br />
+            <span className="bg-clip-text text-transparent bg-gradient-to-r from-yellow-400 to-red-500">
+              Tonkotsu Corner
+            </span>
           </h1>
-          <p className="text-lg lg:text-xl mb-8">
-            Experience the rich, authentic flavors of our signature Tonkotsu ramen.
+          <p className="text-lg lg:text-xl mb-8 leading-relaxed">
+            Experience the rich, authentic flavors of our signature Tonkotsu ramen. 
+            Immerse yourself in a bowl of comfort, crafted with passion and tradition.
           </p>
           <motion.div
             initial="hidden"
@@ -71,7 +75,7 @@ const Hero = () => {
           className="lg:w-1/2 w-full flex items-center justify-center mt-8 lg:mt-0"
         >
           <img
-            src="https://i0.wp.com/theaicuisine.com/wp-content/uploads/2023/05/top-down-shot-of-a-bowl-of-fine-dining-Tonkotsu-Ramen-with-sliced-pork-belly-green-onions-and-a-soft-boiled-egg.webp"
+            src="https://d3nrav7vo3lya8.cloudfront.net/categories/ramen/ramen-eating.webp"
             alt="Tonkotsu Ramen"
             className="rounded-full shadow-2xl max-w-full lg:max-w-xl w-full border-8 border-gray-800 relative top-36"
           />
