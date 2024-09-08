@@ -4,6 +4,8 @@ import { motion } from 'framer-motion';
 import { FaLock, FaUser, FaSignInAlt, FaFacebook, FaTwitter, FaGoogle } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Logo from '../../components/utils/Logo';
+
 
 const Signin = () => {
   const [formData, setFormData] = useState({
@@ -87,15 +89,8 @@ const Signin = () => {
                 }}
               ></div>
               <div className="text-white relative z-10 text-center">
-                <motion.div 
-                  className="text-2xl text-gray-300 tracking-wide p-10"
-                  initial="hidden"
-                  animate="visible"
-                  variants={fadeInUp}
-                >
-                  <span className="italic font-bold relative text-shadow-md -top-2 text-gray-100">Tonkotsu</span>
-                  <span className="italic font-bold text-shadow-md bg-white text-gray-800">Corner</span>
-                </motion.div>
+                <Logo />
+
                 <h2 className="text-5xl font-bold mb-8">Welcome Back</h2>
                 <p className="mb-10 text-xl leading-relaxed">Welcome back to Tonkotsu Corner! Sign in to enjoy our delicious ramen and explore our menu. Your next bowl of comfort awaits!</p>
                 <div className="mt-10">

@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { FaUtensils, FaLeaf, FaFire } from 'react-icons/fa';
+import { GiSpoon, GiChopsticks } from 'react-icons/gi';
 
 const Hero = () => {
   const fadeInUp = {
@@ -12,6 +13,17 @@ const Hero = () => {
   const rotateIn = {
     hidden: { opacity: 0, rotate: -180 },
     visible: { opacity: 1, rotate: 0 },
+  };
+
+  const spin = {
+    animate: {
+      rotate: 360,
+      transition: {
+        duration: 10,
+        repeat: Infinity,
+        ease: "linear"
+      }
+    }
   };
 
   const featureItems = [
@@ -72,13 +84,27 @@ const Hero = () => {
           animate="visible"
           variants={rotateIn}
           transition={{ duration: 1 }}
-          className="lg:w-1/2 w-full flex items-center justify-center mt-8 lg:mt-0"
+          className="lg:w-1/2 w-full flex items-center justify-center mt-8 lg:mt-0 relative"
         >
           <img
             src="https://d3nrav7vo3lya8.cloudfront.net/categories/ramen/ramen-eating.webp"
             alt="Tonkotsu Ramen"
-            className="rounded-full shadow-2xl max-w-full lg:max-w-xl w-full border-8 border-gray-800 relative top-36"
+            className="rounded-full shadow-2xl max-w-full lg:max-w-2xl w-full border-8 border-gray-800 relative top-36"
           />
+          <motion.div
+            className="absolute top-32 left-24"
+            variants={spin}
+            animate="animate"
+          >
+            <GiSpoon className="text-6xl text-yellow-400" />
+          </motion.div>
+          <motion.div
+            className="absolute bottom-0 right-4"
+            variants={spin}
+            animate="animate"
+          >
+            <GiChopsticks className="text-6xl text-yellow-400" />
+          </motion.div>
         </motion.div>
         <motion.div
           initial={{ opacity: 0, scale: 0 }}

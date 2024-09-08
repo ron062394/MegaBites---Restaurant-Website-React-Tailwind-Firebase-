@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import Logo from '../utils/Logo';
 
 function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -22,18 +23,7 @@ function Header() {
     <header id='header' className="sticky top-0 w-full shadow-lg z-50 bg-white text-gray-900">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between py-4">
-          <Link to="/">
-            <motion.div 
-              className="text-2xl text-gray-800 tracking-wide"
-              initial="hidden"
-              animate="visible"
-              variants={fadeInUp}
-            >
-              <span className="italic font-bold relative text-shadow-md -top-2 bg-gray-900 text-white">Tonkotsu</span>
-              <span className="italic font-bold text-shadow-md bg-white text-gray-800">Corner</span>
-            </motion.div>
-          </Link>
-
+          <Logo />
           <nav className="hidden md:flex space-x-6">
             {navItems.map((item, index) => (
               <motion.div

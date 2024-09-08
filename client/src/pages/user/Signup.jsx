@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import { FaLock, FaUser, FaEnvelope, FaUserPlus, FaFacebook, FaTwitter, FaGoogle, FaPhone, FaHome } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import Logo from '../../components/utils/Logo';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -111,15 +112,7 @@ const Signup = () => {
                 }}
               ></div>
               <div className="text-white relative z-10 text-center">
-                <motion.div 
-                  className="text-2xl text-gray-300 tracking-wide p-10"
-                  initial="hidden"
-                  animate="visible"
-                  variants={fadeInUp}
-                >
-                  <span className="italic font-bold relative text-shadow-md -top-2 text-gray-100">Tonkotsu</span>
-                  <span className="italic font-bold text-shadow-md bg-white text-gray-800">Corner</span>
-                </motion.div>
+                <Logo />
                 <h2 className="text-5xl font-bold mb-8">Join Our Community</h2>
                 <p className="mb-10 text-xl leading-relaxed">Sign up to become a part of Tonkotsu Corner! Create your account to enjoy our delicious ramen and explore our menu. Your culinary journey starts here!</p>
                 <div className="mt-10">
