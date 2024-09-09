@@ -67,13 +67,8 @@ const Signin = () => {
     try {
       await loginWithFacebook();
       if (facebookError) {
-        if (facebookError.includes("Can't Load URL")) {
-          setError("Facebook login is currently unavailable. Please try another method.");
-          toast.error("Facebook login is currently unavailable. Please try another method.");
-        } else {
-          setError(facebookError);
-          toast.error(facebookError);
-        }
+        setError(facebookError);
+        toast.error(facebookError);
         return; 
       }
       toast.success('Login successful');

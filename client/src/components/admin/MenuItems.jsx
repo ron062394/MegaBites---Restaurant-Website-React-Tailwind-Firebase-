@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaPlus, FaEdit, FaTrash, FaSearch, FaSort } from 'react-icons/fa';
+import { FaPlus, FaEdit, FaTrash, FaSearch, FaSort, FaTimes } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { db } from '../../firebase';
+import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc, getDoc } from 'firebase/firestore';
 
 const MenuItems = () => {
   const [menuItems, setMenuItems] = useState([]);
@@ -11,6 +13,8 @@ const MenuItems = () => {
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
+  const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState(null);
 
   const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
@@ -23,23 +27,13 @@ const MenuItems = () => {
 
   const fetchMenuItems = async () => {
     try {
-      // Simulating API call with setTimeout
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock data
-      const mockMenuItems = [
-        { id: 1, name: 'Classic Tonkotsu Ramen', description: 'Rich pork broth with tender chashu', price: 12.99, category: 'Ramen', image: 'https://i0.wp.com/theaicuisine.com/wp-content/uploads/2023/05/top-down-shot-of-a-bowl-of-fine-dining-Tonkotsu-Ramen-with-sliced-pork-belly-green-onions-and-a-soft-boiled-egg.webp' },
-        { id: 2, name: 'Spicy Miso Ramen', description: 'Spicy miso-based broth with ground pork', price: 13.99, category: 'Ramen', image: 'https://i0.wp.com/theaicuisine.com/wp-content/uploads/2023/05/top-down-shot-of-a-bowl-of-fine-dining-Tonkotsu-Ramen-with-sliced-pork-belly-green-onions-and-a-soft-boiled-egg.webp' },
-        { id: 3, name: 'Vegetarian Ramen', description: 'Mushroom-based broth with tofu and vegetables', price: 11.99, category: 'Ramen', image: 'https://i0.wp.com/theaicuisine.com/wp-content/uploads/2023/05/top-down-shot-of-a-bowl-of-fine-dining-Tonkotsu-Ramen-with-sliced-pork-belly-green-onions-and-a-soft-boiled-egg.webp' },
-        { id: 4, name: 'Chicken Karaage', description: 'Japanese-style fried chicken', price: 7.99, category: 'Sides', image: 'https://i0.wp.com/theaicuisine.com/wp-content/uploads/2023/05/top-down-shot-of-a-bowl-of-fine-dining-Tonkotsu-Ramen-with-sliced-pork-belly-green-onions-and-a-soft-boiled-egg.webp' },
-        { id: 5, name: 'Gyoza', description: 'Pan-fried pork dumplings', price: 6.99, category: 'Sides', image: 'https://i0.wp.com/theaicuisine.com/wp-content/uploads/2023/05/top-down-shot-of-a-bowl-of-fine-dining-Tonkotsu-Ramen-with-sliced-pork-belly-green-onions-and-a-soft-boiled-egg.webp' },
-        { id: 6, name: 'Matcha Ice Cream', description: 'Green tea flavored ice cream', price: 4.99, category: 'Desserts', image: 'https://i0.wp.com/theaicuisine.com/wp-content/uploads/2023/05/top-down-shot-of-a-bowl-of-fine-dining-Tonkotsu-Ramen-with-sliced-pork-belly-green-onions-and-a-soft-boiled-egg.webp' },
-        { id: 7, name: 'Green Tea', description: 'Traditional Japanese green tea', price: 2.99, category: 'Drinks', image: 'https://i0.wp.com/theaicuisine.com/wp-content/uploads/2023/05/top-down-shot-of-a-bowl-of-fine-dining-Tonkotsu-Ramen-with-sliced-pork-belly-green-onions-and-a-soft-boiled-egg.webp' },
-        { id: 8, name: 'Ramune', description: 'Japanese carbonated soft drink', price: 3.99, category: 'Drinks', image: 'https://i0.wp.com/theaicuisine.com/wp-content/uploads/2023/05/top-down-shot-of-a-bowl-of-fine-dining-Tonkotsu-Ramen-with-sliced-pork-belly-green-onions-and-a-soft-boiled-egg.webp' },
-      ];
-      setMenuItems(mockMenuItems);
+      const snapshot = await getDocs(collection(db, 'Menu'));
+      const menuItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setMenuItems(menuItems);
+      console.log(menuItems);
       setLoading(false);
     } catch (err) {
+      console.error('Error fetching menu items:', err);
       setError('Failed to fetch menu items');
       setLoading(false);
       toast.error('Failed to fetch menu items. Please try again.');
@@ -47,22 +41,73 @@ const MenuItems = () => {
   };
 
   const handleAddItem = () => {
-    toast.info('Add item functionality to be implemented');
+    setEditingItem({
+      name: '',
+      description: '',
+      price: '',
+      category: '',
+      imageURL: ''
+    });
+    setIsItemModalOpen(true);
+    console.log('Add item modal opened');
   };
 
-  const handleEditItem = (id) => {
-    toast.info(`Edit item ${id} functionality to be implemented`);
+  const handleEditItem = (item) => {
+    setEditingItem({ ...item });
+    setIsItemModalOpen(true);
+    console.log('Edit item modal opened');
   };
 
-  const handleDeleteItem = (id) => {
-    const confirmDelete = window.confirm('Are you sure you want to delete this item?');
-    if (confirmDelete) {
-      setMenuItems(menuItems.filter(item => item.id !== id));
-      toast.success(`Item ${id} has been deleted`);
+  const handleItemSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const price = parseFloat(editingItem.price);
+      if (price < 0) {
+        toast.error('Price cannot be negative.');
+        return;
+      }
+      if (editingItem.id) {
+        // Update existing item
+        await updateDoc(doc(db, 'Menu', editingItem.id), {
+          ...editingItem,
+          price: price
+        });
+        setMenuItems(prevItems => prevItems.map(prevItem => 
+          prevItem.id === editingItem.id ? { ...prevItem, ...editingItem, price } : prevItem
+        ));
+        toast.success('Item updated successfully!');
+      } else {
+        // Add new item
+        const docRef = await addDoc(collection(db, 'Menu'), {
+          ...editingItem,
+          price: price
+        });
+        setMenuItems(prevItems => [...prevItems, { id: docRef.id, ...editingItem, price }]);
+        toast.success('New item added successfully!');
+      }
+      setIsItemModalOpen(false);
+      setEditingItem(null);
+    } catch (error) {
+      console.error('Error saving document: ', error);
+      toast.error('Failed to save item. Please try again.');
     }
   };
 
-  const categories = ['All', ...new Set(menuItems.map(item => item.category))];
+  const handleDeleteItem = async (id) => {
+    const confirmDelete = window.confirm('Are you sure you want to delete this item?');
+    if (confirmDelete) {
+      try {
+        await deleteDoc(doc(db, 'Menu', id));
+        setMenuItems(prevItems => prevItems.filter(item => item.id !== id));
+        toast.success(`Item has been deleted`);
+      } catch (err) {
+        console.error('Error deleting item:', err);
+        toast.error('Failed to delete item. Please try again.');
+      }
+    }
+  };
+
+  const categories = ['All', 'Ramen', 'Appetizers', 'Side Dishes', 'Desserts', 'Drinks'];
 
   const sortedItems = React.useMemo(() => {
     let sortableItems = [...menuItems];
@@ -173,16 +218,16 @@ const MenuItems = () => {
                   transition={{ duration: 0.3 }}
                 >
                   <td className="p-3">
-                    <img src={item.image} alt={item.name} className="w-16 h-16 object-cover rounded" />
+                    <img src={item.imageURL} alt={item.name} className="w-16 h-16 object-cover rounded" />
                   </td>
                   <td className="p-3">{item.name}</td>
                   <td className="p-3">{item.description}</td>
-                  <td className="p-3">${item.price.toFixed(2)}</td>
+                  <td className="p-3">${typeof item.price === 'number' ? item.price.toFixed(2) : parseFloat(item.price).toFixed(2)}</td>
                   <td className="p-3">{item.category}</td>
                   <td className="p-3">
                     <motion.button
                       className="bg-gray-700 text-white px-4 py-2 rounded-full mr-2 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-300 shadow-lg"
-                      onClick={() => handleEditItem(item.id)}
+                      onClick={() => handleEditItem(item)}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
@@ -204,6 +249,94 @@ const MenuItems = () => {
         </table>
       </div>
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
+      <AnimatePresence>
+        {isItemModalOpen && (
+          <motion.div
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full">
+              <h2 className="text-2xl font-bold mb-4">{editingItem.id ? 'Edit Item' : 'Add New Item'}</h2>
+              <form onSubmit={handleItemSubmit}>
+                <div className="mb-4">
+                  <label htmlFor="name" className="block text-gray-700 text-sm font-bold mb-2">Name</label>
+                  <input
+                    type="text"
+                    id="name"
+                    value={editingItem.name}
+                    onChange={(e) => setEditingItem({ ...editingItem, name: e.target.value })}
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label htmlFor="description" className="block text-gray-700 text-sm font-bold mb-2">Description</label>
+                  <textarea
+                    id="description"
+                    value={editingItem.description}
+                    onChange={(e) => setEditingItem({ ...editingItem, description: e.target.value })}
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label htmlFor="price" className="block text-gray-700 text-sm font-bold mb-2">Price</label>
+                  <input
+                    type="number"
+                    id="price"
+                    value={editingItem.price}
+                    onChange={(e) => setEditingItem({ ...editingItem, price: Math.max(0, parseFloat(e.target.value)) })}
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    required
+                    step="0.01"
+                    min="0"
+                  />
+                </div>
+                <div className="mb-4">
+                  <label htmlFor="category" className="block text-gray-700 text-sm font-bold mb-2">Category</label>
+                  <select
+                    id="category"
+                    value={editingItem.category}
+                    onChange={(e) => setEditingItem({ ...editingItem, category: e.target.value })}
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    required
+                  >
+                    <option value="">Select a category</option>
+                    {categories.filter(cat => cat !== 'All').map(category => (
+                      <option key={category} value={category}>{category}</option>
+                    ))}
+                  </select>
+                </div>
+                <div className="mb-4">
+                  <label htmlFor="imageURL" className="block text-gray-700 text-sm font-bold mb-2">Image URL</label>
+                  <input
+                    type="text"
+                    id="imageURL"
+                    value={editingItem.imageURL}
+                    onChange={(e) => setEditingItem({ ...editingItem, imageURL: e.target.value })}
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    required
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="bg-gray-700 text-white px-4 py-2 rounded-full hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-300 shadow-lg"
+                >
+                  {editingItem.id ? 'Update Item' : 'Add Item'}
+                </button>
+              </form>
+              <button
+                onClick={() => setIsItemModalOpen(false)}
+                className="mt-4 bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-300 shadow-lg"
+              >
+                Cancel
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

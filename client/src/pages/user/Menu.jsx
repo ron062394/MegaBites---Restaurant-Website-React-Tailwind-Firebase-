@@ -4,6 +4,8 @@ import { FaShoppingCart, FaSearch } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Link } from 'react-router-dom';
+import { db } from '../../firebase';
+import { collection, getDocs } from 'firebase/firestore';
 
 const Menu = () => {
   const [menuItems, setMenuItems] = useState([]);
@@ -13,34 +15,15 @@ const Menu = () => {
   const [activeCategory, setActiveCategory] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
 
-  const fadeInUp = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0 },
-  };
-
-  useEffect(() => {
-    fetchMenuItems();
-  }, []);
-
   const fetchMenuItems = async () => {
     try {
-      // Simulating API call with setTimeout
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock data
-      const mockMenuItems = [
-        { id: 1, name: 'Classic Tonkotsu Ramen', description: 'Rich pork broth with tender chashu', price: 12.99, category: 'Ramen', image: 'https://i0.wp.com/theaicuisine.com/wp-content/uploads/2023/05/top-down-shot-of-a-bowl-of-fine-dining-Tonkotsu-Ramen-with-sliced-pork-belly-green-onions-and-a-soft-boiled-egg.webp' },
-        { id: 2, name: 'Spicy Miso Ramen', description: 'Spicy miso-based broth with ground pork', price: 13.99, category: 'Ramen', image: 'https://i0.wp.com/theaicuisine.com/wp-content/uploads/2023/05/top-down-shot-of-a-bowl-of-fine-dining-Tonkotsu-Ramen-with-sliced-pork-belly-green-onions-and-a-soft-boiled-egg.webp' },
-        { id: 3, name: 'Vegetarian Ramen', description: 'Mushroom-based broth with tofu and vegetables', price: 11.99, category: 'Ramen', image: 'https://i0.wp.com/theaicuisine.com/wp-content/uploads/2023/05/top-down-shot-of-a-bowl-of-fine-dining-Tonkotsu-Ramen-with-sliced-pork-belly-green-onions-and-a-soft-boiled-egg.webp' },
-        { id: 4, name: 'Chicken Karaage', description: 'Japanese-style fried chicken', price: 7.99, category: 'Sides', image: 'https://i0.wp.com/theaicuisine.com/wp-content/uploads/2023/05/top-down-shot-of-a-bowl-of-fine-dining-Tonkotsu-Ramen-with-sliced-pork-belly-green-onions-and-a-soft-boiled-egg.webp' },
-        { id: 5, name: 'Gyoza', description: 'Pan-fried pork dumplings', price: 6.99, category: 'Sides', image: 'https://i0.wp.com/theaicuisine.com/wp-content/uploads/2023/05/top-down-shot-of-a-bowl-of-fine-dining-Tonkotsu-Ramen-with-sliced-pork-belly-green-onions-and-a-soft-boiled-egg.webp' },
-        { id: 6, name: 'Matcha Ice Cream', description: 'Green tea flavored ice cream', price: 4.99, category: 'Desserts', image: 'https://i0.wp.com/theaicuisine.com/wp-content/uploads/2023/05/top-down-shot-of-a-bowl-of-fine-dining-Tonkotsu-Ramen-with-sliced-pork-belly-green-onions-and-a-soft-boiled-egg.webp' },
-        { id: 7, name: 'Green Tea', description: 'Traditional Japanese green tea', price: 2.99, category: 'Drinks', image: 'https://i0.wp.com/theaicuisine.com/wp-content/uploads/2023/05/top-down-shot-of-a-bowl-of-fine-dining-Tonkotsu-Ramen-with-sliced-pork-belly-green-onions-and-a-soft-boiled-egg.webp' },
-        { id: 8, name: 'Ramune', description: 'Japanese carbonated soft drink', price: 3.99, category: 'Drinks', image: 'https://i0.wp.com/theaicuisine.com/wp-content/uploads/2023/05/top-down-shot-of-a-bowl-of-fine-dining-Tonkotsu-Ramen-with-sliced-pork-belly-green-onions-and-a-soft-boiled-egg.webp' },
-      ];
-      setMenuItems(mockMenuItems);
+      const snapshot = await getDocs(collection(db, 'Menu'));
+      const menuItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setMenuItems(menuItems);
+      console.log(menuItems);
       setLoading(false);
     } catch (err) {
+      console.error('Error fetching menu items:', err);
       setError('Failed to fetch menu items');
       setLoading(false);
       toast.error('Failed to fetch menu items. Please try again.');
@@ -52,9 +35,19 @@ const Menu = () => {
     toast.success(`Added ${item.name} to cart!`);
   };
 
+  const fadeInUp = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 },
+  };
+
+  useEffect(() => {
+    fetchMenuItems();
+  }, []);
+
   const categories = ['All', ...new Set(menuItems.map(item => item.category))];
 
   const filteredMenuItems = menuItems
+    .filter(item => item.available)
     .filter(item => activeCategory === 'All' || item.category === activeCategory)
     .filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
@@ -109,7 +102,7 @@ const Menu = () => {
                 transition={{ duration: 0.5 }}
               >
                 <Link to={`/product/${item.id}`}>
-                  <img src={item.image} alt={item.name} className="w-full h-48 object-cover cursor-pointer transition duration-300 hover:opacity-80" />
+                  <img src={item.imageURL} alt={item.name} className="w-full h-48 object-cover cursor-pointer transition duration-300 hover:opacity-80" />
                 </Link>
                 <div className="p-6">
                   <Link to={`/product/${item.id}`}>

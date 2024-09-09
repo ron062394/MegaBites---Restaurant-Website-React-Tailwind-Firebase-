@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FaLock, FaUser, FaEnvelope, FaUserPlus, FaFacebook, FaTwitter, FaGoogle, FaPhone, FaHome } from 'react-icons/fa';
+import { FaLock, FaUser, FaEnvelope, FaUserPlus, FaFacebook, FaGoogle, FaPhone, FaHome } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Logo from '../../components/utils/Logo';
-import { useSignup, signupWithGoogle } from '../../hooks/useSignup';
+import { useSignup } from '../../hooks/useSignup';
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -215,14 +215,14 @@ const Signup = () => {
                   </div>
                 </div>
 
-                <div className="mt-8 grid grid-cols-3 gap-4">
-                  {[FaFacebook, FaTwitter, FaGoogle].map((Icon, index) => (
+                <div className="mt-8 grid grid-cols-2 gap-4">
+                  {[FaFacebook, FaGoogle].map((Icon, index) => (
                     <motion.button 
                       key={index} 
                       className="w-full inline-flex justify-center py-3 px-5 border border-gray-300 rounded-full shadow-sm bg-white text-lg font-medium text-gray-500 hover:bg-gray-50 transition duration-300 ease-in-out"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={handleGoogleSignup}
+                      onClick={index === 0 ? () => {} : handleGoogleSignup}
                     >
                       <Icon className="w-6 h-6" />
                     </motion.button>
