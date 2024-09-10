@@ -12,17 +12,17 @@ const Services = () => {
     {
       icon: <FaTruck />,
       title: "Fast Delivery",
-      description: "Quick and reliable delivery to your doorstep."
+      description: "Quick and reliable delivery to your doorstep. Our dedicated delivery team ensures your ramen arrives hot and fresh, maintaining the quality you expect from Tonkotsu Corner."
     },
     {
       icon: <FaUtensils />,
       title: "Dine-In Experience",
-      description: "Authentic atmosphere in our cozy restaurant."
+      description: "Authentic atmosphere in our cozy restaurant. Immerse yourself in the ambiance of a traditional Japanese ramen shop while enjoying our signature dishes prepared right before your eyes."
     },
     {
       icon: <FaCalendarAlt />,
       title: "Easy Reservations",
-      description: "Book your table in advance for peak hours."
+      description: "Book your table in advance for peak hours. Our user-friendly reservation system allows you to secure your spot, ensuring a seamless dining experience even during our busiest times."
     }
   ];
 
@@ -45,18 +45,6 @@ const Services = () => {
               </div>
               <h3 className="text-xl font-bold mb-3 text-yellow-300 text-left">{service.title}</h3>
               <p className="text-gray-300 text-sm leading-relaxed text-left">{service.description}</p>
-              <div className="flex justify-start mt-4">
-                <motion.button
-                  initial={{ y: 20, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  transition={{ delay: 0.5 + index * 0.2 }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="px-4 py-1 bg-yellow-500 text-gray-900 rounded-full font-semibold text-sm hover:bg-yellow-400 transition duration-300"
-                >
-                  Learn More
-                </motion.button>
-              </div>
             </motion.div>
           ))}
         </div>

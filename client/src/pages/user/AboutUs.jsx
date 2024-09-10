@@ -136,18 +136,7 @@ const AboutUs = () => {
           </motion.div>
         </div>
 
-        <motion.div 
-          className="mt-16 text-center"
-          initial="hidden"
-          animate="visible"
-          variants={fadeInUp}
-          transition={{ delay: 0.6 }}
-        >
-          <button className="btn px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition duration-300 bg-gradient-to-r from-yellow-400 to-red-500 text-white font-bold text-xl hover:from-yellow-500 hover:to-red-600 inline-flex items-center transform hover:scale-105">
-            <FaUtensils className="mr-3" />
-            Make a Reservation
-          </button>
-        </motion.div>
+
         <Gallery />
       </div>
     </section>
