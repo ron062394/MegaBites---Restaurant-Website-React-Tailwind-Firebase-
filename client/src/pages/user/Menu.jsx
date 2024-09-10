@@ -199,7 +199,7 @@ const Menu = () => {
                 <Link to={`/product/${item.id}`}>
                   <img src={item.imageURL} alt={item.name} className="w-full h-48 object-cover cursor-pointer transition duration-300 hover:opacity-80" />
                 </Link>
-                <div className="p-4 flex flex-col justify-between flex-grow">
+                <div className="p-4 flex flex-col justify-between flex-grow text-left">
                   <div>
                     <Link to={`/product/${item.id}`}>
                       <h3 className="text-xl font-bold text-gray-900 mb-2 cursor-pointer hover:text-yellow-600 transition duration-300">{item.name}</h3>

@@ -43,7 +43,7 @@ const Footer = () => {
             className="col-span-1 md:col-span-2"
           >
             <Logo className="mb-6 w-40 h-auto" />
-            <p className="text-gray-300 mb-6 text-lg leading-relaxed">Tonkotsu Corner is dedicated to delivering exceptional ramen experiences with our authentic Japanese cuisine and warm hospitality. Our passion for quality ingredients and traditional techniques ensures every bowl tells a story.</p>
+            <p className="text-gray-300 mb-6 text-lg leading-relaxed text-left">Tonkotsu Corner is dedicated to delivering exceptional ramen experiences with our authentic Japanese cuisine and warm hospitality. Our passion for quality ingredients and traditional techniques ensures every bowl tells a story.</p>
             <div className="flex space-x-4">
               {socialLinks.map((link, index) => (
                 <a key={index} href={link.url} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-yellow-400 transition duration-300" aria-label={link.label}>
@@ -57,23 +57,23 @@ const Footer = () => {
             animate="visible"
             variants={fadeInUp}
           >
-            <h3 className="text-2xl font-bold mb-6 text-yellow-400">Contact Us</h3>
+            <h3 className="text-2xl font-bold mb-6 text-yellow-400 text-left">Contact Us</h3>
             <div className="space-y-4">
               <div className="flex items-center">
                 <FaMapMarkerAlt className="text-yellow-400 mr-3 flex-shrink-0 text-xl" />
-                <p className="text-gray-300">123 Ramen Street, Noodle City, RC 12345</p>
+                <p className="text-gray-300 text-left">123 Ramen Street, Noodle City, RC 12345</p>
               </div>
               <div className="flex items-center">
                 <FaPhone className="text-yellow-400 mr-3 flex-shrink-0 text-xl" />
-                <p className="text-gray-300">(123) 456-7890</p>
+                <p className="text-gray-300 text-left">(123) 456-7890</p>
               </div>
               <div className="flex items-center">
                 <FaEnvelope className="text-yellow-400 mr-3 flex-shrink-0 text-xl" />
-                <p className="text-gray-300">slurp@tonkotsucorner.com</p>
+                <p className="text-gray-300 text-left">slurp@tonkotsucorner.com</p>
               </div>
               <div className="flex items-center">
                 <FaClock className="text-yellow-400 mr-3 flex-shrink-0 text-xl" />
-                <p className="text-gray-300">Mon-Sun: 11:00 AM - 10:00 PM</p>
+                <p className="text-gray-300 text-left">Mon-Sun: 11:00 AM - 10:00 PM</p>
               </div>
             </div>
           </motion.div>
@@ -82,7 +82,7 @@ const Footer = () => {
             animate="visible"
             variants={fadeInUp}
           >
-            <h3 className="text-2xl font-bold mb-6 text-yellow-400">Quick Links</h3>
+            <h3 className="text-2xl font-bold mb-6 text-yellow-400 text-left">Quick Links</h3>
             <ul className="space-y-3">
               {quickLinks.map((link, index) => (
                 <li key={index}>
@@ -96,12 +96,12 @@ const Footer = () => {
           </motion.div>
         </div>
         <motion.div 
-          className="mt-12 border-t border-gray-700 pt-8 flex flex-col md:flex-row justify-between items-center"
+          className="mt-12 border-t border-gray-700 pt-8 flex flex-col md:flex-row justify-between items-start"
           initial="hidden"
           animate="visible"
           variants={fadeInUp}
         >
-          <p className="text-gray-400 text-sm mb-4 md:mb-0">&copy; {new Date().getFullYear()} Tonkotsu Corner. All rights reserved.</p>
+          <p className="text-gray-400 text-sm mb-4 md:mb-0 text-left">&copy; {new Date().getFullYear()} Tonkotsu Corner. All rights reserved.</p>
           <div className="flex space-x-4">
             <Link to="/terms-of-service" className="text-gray-400 hover:text-yellow-400 transition duration-300 text-sm">Terms of Service</Link>
             <Link to="/privacy-policy" className="text-gray-400 hover:text-yellow-400 transition duration-300 text-sm">Privacy Policy</Link>

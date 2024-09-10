@@ -105,7 +105,7 @@ const Careers = () => {
           animate="visible"
           variants={fadeInUp}
           transition={{ duration: 0.5 }}
-          className="text-5xl font-bold text-center mb-12"
+          className="text-5xl font-bold mb-12 text-left"
         >
           Join the <span className="text-yellow-500">Tonkotsu Corner</span> Family
         </motion.h1>
@@ -119,7 +119,7 @@ const Careers = () => {
               transition={{ duration: 0.5, delay: 0.2 }}
               className="bg-gray-800 p-8 rounded-lg shadow-lg mb-8"
             >
-              <h2 className="text-3xl font-semibold mb-6">Why Choose Tonkotsu Corner?</h2>
+              <h2 className="text-3xl font-semibold mb-6 text-left">Why Choose Tonkotsu Corner?</h2>
               <div className="space-y-4">
                 <div className="flex items-center">
                   <FaClipboardList className="text-3xl text-yellow-500 mr-4" />
@@ -147,7 +147,7 @@ const Careers = () => {
               transition={{ duration: 0.5, delay: 0.4 }}
               className="bg-gray-800 p-8 rounded-lg shadow-lg"
             >
-              <h2 className="text-3xl font-semibold mb-6">Current Openings</h2>
+              <h2 className="text-3xl font-semibold mb-6 text-left">Current Openings</h2>
               <div className="space-y-4">
                 <AnimatePresence mode="wait">
                   <motion.div
@@ -158,22 +158,22 @@ const Careers = () => {
                     transition={{ duration: 0.5 }}
                     className="bg-gray-700 p-6 rounded-lg"
                   >
-                    <h3 className="text-2xl font-semibold mb-3 flex items-center">
+                    <h3 className="text-2xl font-semibold mb-3 flex items-center text-left">
                       <FaUtensils className="mr-3 text-yellow-500" />
                       {jobOpenings[activeJobIndex].title}
                     </h3>
-                    <p className="text-gray-300 mb-4">{jobOpenings[activeJobIndex].description}</p>
+                    <p className="text-gray-300 mb-4 text-left">{jobOpenings[activeJobIndex].description}</p>
                     <div className="mb-4">
-                      <h4 className="text-lg font-semibold mb-2">Requirements:</h4>
-                      <ul className="list-disc list-inside text-gray-300">
+                      <h4 className="text-lg font-semibold mb-2 text-left">Requirements:</h4>
+                      <ul className="list-disc list-inside text-gray-300 text-left">
                         {jobOpenings[activeJobIndex].requirements.map((req, index) => (
                           <li key={index}>{req}</li>
                         ))}
                       </ul>
                     </div>
                     <div>
-                      <h4 className="text-lg font-semibold mb-2">Benefits:</h4>
-                      <ul className="list-disc list-inside text-gray-300">
+                      <h4 className="text-lg font-semibold mb-2 text-left">Benefits:</h4>
+                      <ul className="list-disc list-inside text-gray-300 text-left">
                         {jobOpenings[activeJobIndex].benefits.map((benefit, index) => (
                           <li key={index}>{benefit}</li>
                         ))}
@@ -194,12 +194,12 @@ const Careers = () => {
               animate="visible"
               variants={fadeInUp}
               transition={{ duration: 0.5, delay: 0.6 }}
-              className="text-center mb-8"
+              className="mb-8"
             >
               <img 
                 src="https://www.shutterstock.com/image-photo/male-chef-garnishing-food-herb-600nw-2281290409.jpg" 
                 alt="Chef garnishing food" 
-                className="mx-auto rounded-lg shadow-lg"
+                className="rounded-lg shadow-lg"
               />
             </motion.div>
             
@@ -211,10 +211,10 @@ const Careers = () => {
               className="bg-gray-800 p-8 rounded-lg shadow-lg"
               id="application-form"
             >
-              <h2 className="text-3xl font-semibold mb-6">Apply Now</h2>
+              <h2 className="text-3xl font-semibold mb-6 text-left">Apply Now</h2>
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-300">Full Name</label>
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-300 text-left">Full Name</label>
                   <div className="mt-1 relative rounded-md shadow-sm">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <FaUser className="text-gray-400" />
@@ -232,7 +232,7 @@ const Careers = () => {
                   </div>
                 </div>
                 <div>
-                  <label htmlFor="email" className="block text-sm font-medium text-gray-300">Email</label>
+                  <label htmlFor="email" className="block text-sm font-medium text-gray-300 text-left">Email</label>
                   <div className="mt-1 relative rounded-md shadow-sm">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <FaEnvelope className="text-gray-400" />
@@ -250,7 +250,7 @@ const Careers = () => {
                   </div>
                 </div>
                 <div>
-                  <label htmlFor="phone" className="block text-sm font-medium text-gray-300">Phone</label>
+                  <label htmlFor="phone" className="block text-sm font-medium text-gray-300 text-left">Phone</label>
                   <div className="mt-1 relative rounded-md shadow-sm">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                       <FaPhone className="text-gray-400" />
@@ -268,7 +268,7 @@ const Careers = () => {
                   </div>
                 </div>
                 <div>
-                  <label htmlFor="position" className="block text-sm font-medium text-gray-300">Position</label>
+                  <label htmlFor="position" className="block text-sm font-medium text-gray-300 text-left">Position</label>
                   <select
                     id="position"
                     name="position"
@@ -284,7 +284,7 @@ const Careers = () => {
                   </select>
                 </div>
                 <div>
-                  <label htmlFor="resume" className="block text-sm font-medium text-gray-300">Resume</label>
+                  <label htmlFor="resume" className="block text-sm font-medium text-gray-300 text-left">Resume</label>
                   <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-600 border-dashed rounded-md">
                     <div className="space-y-1 text-center">
                       <FaFileAlt className="mx-auto h-12 w-12 text-gray-400" />
@@ -302,7 +302,7 @@ const Careers = () => {
                   </div>
                 </div>
                 <div>
-                  <label htmlFor="coverLetter" className="block text-sm font-medium text-gray-300">Cover Letter</label>
+                  <label htmlFor="coverLetter" className="block text-sm font-medium text-gray-300 text-left">Cover Letter</label>
                   <textarea
                     id="coverLetter"
                     name="coverLetter"
