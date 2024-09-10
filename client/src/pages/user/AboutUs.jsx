@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { FaUtensils, FaHistory, FaHeart, FaLeaf, FaUsers, FaAward, FaHandshake, FaImage } from 'react-icons/fa';
 
 const AboutUs = () => {
@@ -47,82 +47,55 @@ const AboutUs = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-gray-900 to-black text-white py-16">
-      <div className="container mx-auto px-4">
-        <motion.h1 
-          initial="hidden"
-          animate="visible"
-          variants={fadeInUp}
-          transition={{ duration: 0.5 }}
-          className="text-5xl font-bold text-center mb-16 text-gray-100"
-        >
-          About Tonkotsu Corner
-        </motion.h1>
-        
-        <div className="grid md:grid-cols-3 gap-10 mb-16">
-          {sections.slice(0, 3).map((section, index) => (
-            <motion.div 
-              key={section.title}
-              initial="hidden"
-              animate="visible"
-              variants={fadeInUp}
-              transition={{ duration: 0.5, delay: 0.2 * (index + 1) }}
-              className="bg-white rounded-2xl shadow-2xl overflow-hidden p-8 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2"
-            >
-              <section.icon className="text-5xl mb-6 text-gray-700" />
-              <h2 className="text-2xl font-semibold mb-4 text-gray-800">{section.title}</h2>
-              <p className="text-gray-700 leading-relaxed">{section.content}</p>
-            </motion.div>
-          ))}
-        </div>
-
+    <section id='about-us' className="bg-gradient-to-r from-gray-900 to-black py-20 px-4 sm:px-6 lg:px-8 min-h-screen">
+      <div className="max-w-7xl mx-auto">
         <motion.div 
+          className="text-center mb-20"
           initial="hidden"
           animate="visible"
           variants={fadeInUp}
-          transition={{ duration: 0.5, delay: 1.2 }}
-          className="mb-16"
         >
-          <h2 className="text-4xl font-semibold mb-8 text-center text-gray-100">Our Restaurant</h2>
-          <div className="bg-white rounded-2xl shadow-2xl overflow-hidden p-6">
-            <div className="bg-gray-200 h-[500px] rounded-lg flex items-center justify-center overflow-hidden">
-              <FaImage className="text-8xl text-gray-400 transition-transform duration-300 transform hover:scale-110" />
-            </div>
-          </div>
+          <h2 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-red-600 mb-4">About Tonkotsu Corner</h2>
+          <p className="mt-4 text-2xl text-gray-300">Discover our passion for authentic ramen</p>
         </motion.div>
-
-        <div className="grid md:grid-cols-2 gap-10 mb-16">
-          {sections.slice(3, 7).map((section, index) => (
-            <motion.div 
-              key={section.title}
-              initial="hidden"
-              animate="visible"
-              variants={fadeInUp}
-              transition={{ duration: 0.5, delay: 1.4 + (0.2 * index) }}
-              className="bg-white rounded-2xl shadow-2xl overflow-hidden p-8 hover:shadow-lg transition-all duration-300 transform hover:-translate-y-2"
-            >
-              <section.icon className="text-5xl mb-6 text-gray-700" />
-              <h2 className="text-2xl font-semibold mb-4 text-gray-800">{section.title}</h2>
-              <p className="text-gray-700 leading-relaxed">{section.content}</p>
-            </motion.div>
-          ))}
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <AnimatePresence>
+            {sections.map((section, index) => (
+              <motion.div 
+                key={section.title}
+                className="bg-white rounded-2xl overflow-hidden shadow-2xl transform transition duration-500 hover:scale-105 flex flex-col"
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 50 }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+              >
+                <div className="p-6 flex flex-col justify-between flex-grow">
+                  <div>
+                    <section.icon className="text-4xl mb-4 text-yellow-500" />
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{section.title}</h3>
+                    <p className="text-gray-600 mb-4 text-sm">{section.content}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
 
         <motion.div 
+          className="mt-16 text-center"
           initial="hidden"
           animate="visible"
           variants={fadeInUp}
-          transition={{ duration: 0.5, delay: 2.2 }}
-          className="text-center bg-white rounded-2xl shadow-2xl overflow-hidden p-10"
+          transition={{ delay: 0.6 }}
         >
-          <h2 className="text-4xl font-semibold mb-6 text-gray-800">Visit Us Today</h2>
-          <p className="text-xl text-gray-700">Experience the authentic taste of Japan at Tonkotsu Corner. We look forward to serving you!</p>
-          <button className="mt-8 bg-gray-700 text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-300 shadow-lg">
+          <button className="btn px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition duration-300 bg-gradient-to-r from-yellow-400 to-red-500 text-white font-bold text-lg hover:from-yellow-500 hover:to-red-600 inline-flex items-center">
+            <FaUtensils className="mr-2" />
             Make a Reservation
           </button>
         </motion.div>
       </div>
-    </div>
+    </section>
   );
 };
 

@@ -4,6 +4,8 @@ import Services from '../../components/user/Services';
 import OurStory from '../../components/user/OurStory';
 import Testimonials from '../../components/user/Testimonials';
 import SignatureDishes from '../../components/user/SignatureDishes';
+import Gallery from '../../components/user/Gallery';
+
 
 
 const Homepage = () => {
@@ -15,6 +17,7 @@ const Homepage = () => {
       <OurStory />
       <SignatureDishes />
       <Testimonials />
+      <Gallery />
     </div>
   );
 };

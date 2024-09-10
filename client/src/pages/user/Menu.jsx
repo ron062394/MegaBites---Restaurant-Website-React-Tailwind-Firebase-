@@ -137,7 +137,6 @@ const Menu = () => {
   
   if (error) return (
     <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-r from-gray-900 to-black">
-      
       <p className="text-2xl font-semibold text-red-500">Error: {error}</p>
       <button 
         onClick={fetchMenuItems} 
@@ -189,7 +188,7 @@ const Menu = () => {
             {filteredMenuItems.map((item) => (
               <motion.div 
                 key={item.id}
-                className="bg-white rounded-2xl overflow-hidden shadow-2xl transform transition duration-500 hover:scale-105"
+                className="bg-white rounded-2xl overflow-hidden shadow-2xl transform transition duration-500 hover:scale-105 flex flex-col"
                 initial={{ opacity: 0, y: 50 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 50 }}
@@ -198,21 +197,23 @@ const Menu = () => {
                 <Link to={`/product/${item.id}`}>
                   <img src={item.imageURL} alt={item.name} className="w-full h-48 object-cover cursor-pointer transition duration-300 hover:opacity-80" />
                 </Link>
-                <div className="p-6 text-left">
-                  <Link to={`/product/${item.id}`}>
-                    <h3 className="text-2xl font-bold text-gray-900 mb-2 cursor-pointer hover:text-yellow-600 transition duration-300">{item.name}</h3>
-                  </Link>
-                  <p className="text-gray-600 mb-4 text-sm">{item.description}</p>
-                  <div className="flex justify-between items-center">
-                    <p className="text-xl font-bold text-yellow-600">${typeof item.price === 'number' ? item.price.toFixed(2) : parseFloat(item.price).toFixed(2)}</p>
+                <div className="p-4 flex flex-col justify-between flex-grow">
+                  <div>
+                    <Link to={`/product/${item.id}`}>
+                      <h3 className="text-xl font-bold text-gray-900 mb-2 cursor-pointer hover:text-yellow-600 transition duration-300">{item.name}</h3>
+                    </Link>
+                    <p className="text-gray-600 mb-2 text-sm line-clamp-2">{item.description}</p>
+                  </div>
+                  <div className="flex justify-between items-center mt-2">
+                    <p className="text-lg font-bold text-yellow-600">${typeof item.price === 'number' ? item.price.toFixed(2) : parseFloat(item.price).toFixed(2)}</p>
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="bg-yellow-500 text-white px-4 py-2 rounded-full flex items-center text-sm font-semibold hover:bg-yellow-400 transition duration-300"
+                      className="bg-yellow-500 text-white px-3 py-1 rounded-full flex items-center text-sm font-semibold hover:bg-yellow-400 transition duration-300"
                       onClick={() => addToCart(item)}
                     >
-                      <FaShoppingCart className="mr-2" />
-                      Add to Cart
+                      <FaShoppingCart className="mr-1" />
+                      Add
                     </motion.button>
                   </div>
                 </div>
