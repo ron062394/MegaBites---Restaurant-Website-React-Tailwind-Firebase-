@@ -260,9 +260,13 @@ const Product = () => {
                 className="bg-white rounded-lg overflow-hidden shadow-lg"
                 whileHover={{ y: -5, transition: { duration: 0.3 } }}
               >
-                <img src={item.imageURL} alt={item.name} className="w-full h-56 object-cover cursor-pointer" />
+                <Link to={`/product/${item.id}`}>
+                  <img src={item.imageURL} alt={item.name} className="w-full h-56 object-cover cursor-pointer" />
+                </Link>
                 <div className="p-6">
-                  <h4 className="text-2xl font-semibold text-gray-900 mb-2 cursor-pointer">{item.name}</h4>
+                  <Link to={`/product/${item.id}`}>
+                    <h4 className="text-2xl font-semibold text-gray-900 mb-2 cursor-pointer">{item.name}</h4>
+                  </Link>
                   <p className="text-gray-600 mb-4">${item.price.toFixed(2)}</p>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
