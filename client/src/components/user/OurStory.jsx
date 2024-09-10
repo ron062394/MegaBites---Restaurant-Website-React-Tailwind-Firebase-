@@ -28,7 +28,7 @@ const OurStory = () => {
     <div className="bg-gradient-to-r from-gray-900 to-black py-24">
       <div className="container mx-auto px-4">
         <motion.h2 
-          className="text-4xl lg:text-6xl font-bold text-center mb-12 text-shadow-lg"
+          className="text-4xl lg:text-6xl font-bold mb-12 text-shadow-lg"
           initial="hidden"
           animate="visible"
           variants={fadeInUp}
@@ -37,7 +37,7 @@ const OurStory = () => {
             Our Story
           </span>
         </motion.h2>
-        <div className="flex flex-col lg:flex-row gap-8 items-center">
+        <div className="flex flex-col lg:flex-row gap-8 items-start">
           <motion.div 
             className="lg:w-1/2"
             initial="hidden"
@@ -83,10 +83,10 @@ const OurStory = () => {
           {features.map((feature, index) => (
             <motion.div 
               key={index}
-              className="bg-gray-800 rounded-lg p-6 text-center transform hover:scale-105 transition-all duration-300"
+              className="bg-gray-800 rounded-lg p-6 transform hover:scale-105 transition-all duration-300"
               variants={fadeInUp}
             >
-              <div className="text-4xl text-yellow-400 mb-4 flex justify-center">
+              <div className="text-4xl text-yellow-400 mb-4 flex">
                 {feature.icon}
               </div>
               <h4 className="text-xl font-semibold text-white mb-2">{feature.title}</h4>

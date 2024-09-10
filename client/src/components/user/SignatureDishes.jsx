@@ -73,7 +73,7 @@ const SignatureDishes = () => {
                 transition={{ delay: index * 0.1 }}
               >
                 <img src={dish.image} alt={dish.name} className="w-full h-48 object-cover" />
-                <div className="p-4">
+                <div className="p-4 text-left">
                   <h3 className="text-xl font-semibold text-white mb-2">{dish.name}</h3>
                   <p className="text-gray-300 text-sm mb-3">{dish.description}</p>
                   <div className="flex items-center justify-between">
