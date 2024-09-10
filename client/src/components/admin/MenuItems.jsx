@@ -226,7 +226,7 @@ const MenuItems = () => {
                   <td className="p-3">{item.category}</td>
                   <td className="p-3">
                     <motion.button
-                      className="bg-gray-700 text-white px-4 py-2 rounded-full mr-2 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-300 shadow-lg"
+                      className="bg-gray-700 text-white px-4 py-2 rounded-full mr-2 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-300 shadow-lg w-full mb-2"
                       onClick={() => handleEditItem(item)}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
@@ -234,7 +234,7 @@ const MenuItems = () => {
                       <FaEdit className="mr-2 inline" /> Edit
                     </motion.button>
                     <motion.button
-                      className="bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-300 shadow-lg"
+                      className="bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-300 shadow-lg w-full"
                       onClick={() => handleDeleteItem(item.id)}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}

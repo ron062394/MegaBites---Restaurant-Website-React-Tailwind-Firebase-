@@ -3,9 +3,11 @@ import { motion } from 'framer-motion';
 import { FaDownload, FaPlus, FaSearch, FaSort } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { db } from '../../firebase';
+import { collection, query, getDocs, orderBy } from 'firebase/firestore';
 
 const Reports = () => {
-  const [reports, setReports] = useState([]);
+  const [dailySummaries, setDailySummaries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
@@ -17,34 +19,30 @@ const Reports = () => {
   };
 
   useEffect(() => {
-    fetchReports();
+    fetchDailySummaries();
   }, []);
 
-  const fetchReports = async () => {
+  const fetchDailySummaries = async () => {
     try {
-      // Simulating API call with setTimeout
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock data
-      const mockReports = [
-        { id: 1, name: 'Sales Report', description: 'Monthly sales overview', lastUpdated: '2023-05-15' },
-        { id: 2, name: 'Inventory Report', description: 'Current stock levels', lastUpdated: '2023-05-14' },
-        { id: 3, name: 'Customer Feedback', description: 'Summary of recent reviews', lastUpdated: '2023-05-13' },
-        { id: 4, name: 'Financial Statement', description: 'Quarterly financial summary', lastUpdated: '2023-05-12' },
-        { id: 5, name: 'Employee Performance', description: 'Staff productivity metrics', lastUpdated: '2023-05-11' },
-        { id: 6, name: 'Marketing Campaign Results', description: 'ROI of recent campaigns', lastUpdated: '2023-05-10' },
-      ];
-      setReports(mockReports);
+      const summariesRef = collection(db, 'DailySummary');
+      const q = query(summariesRef, orderBy('date', 'desc'));
+      const querySnapshot = await getDocs(q);
+      const summariesData = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setDailySummaries(summariesData);
       setLoading(false);
     } catch (err) {
-      setError('Failed to fetch reports');
+      console.error('Error fetching daily summaries:', err);
+      setError('Failed to fetch daily summaries');
       setLoading(false);
-      toast.error('Failed to fetch reports. Please try again.');
+      toast.error('Failed to fetch daily summaries. Please try again.');
     }
   };
 
-  const handleDownloadReport = (id) => {
-    toast.info(`Downloading report ${id}`);
+  const handleDownloadReport = (date) => {
+    toast.info(`Downloading report for ${date}`);
   };
 
   const handleAddReport = () => {
@@ -59,10 +57,10 @@ const Reports = () => {
     setSortConfig({ key, direction });
   };
 
-  const sortedReports = React.useMemo(() => {
-    let sortableReports = [...reports];
+  const sortedSummaries = React.useMemo(() => {
+    let sortableSummaries = [...dailySummaries];
     if (sortConfig.key !== null) {
-      sortableReports.sort((a, b) => {
+      sortableSummaries.sort((a, b) => {
         if (a[sortConfig.key] < b[sortConfig.key]) {
           return sortConfig.direction === 'ascending' ? -1 : 1;
         }
@@ -72,12 +70,11 @@ const Reports = () => {
         return 0;
       });
     }
-    return sortableReports;
-  }, [reports, sortConfig]);
+    return sortableSummaries;
+  }, [dailySummaries, sortConfig]);
 
-  const filteredReports = sortedReports.filter(report => 
-    report.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    report.description.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredSummaries = sortedSummaries.filter(summary => 
+    summary.date.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   if (loading) return <div className="text-center text-2xl text-gray-800">Loading...</div>;
@@ -91,7 +88,7 @@ const Reports = () => {
         animate="visible"
         variants={fadeInUp}
       >
-        Reports Management
+        Daily Sales Summaries
       </motion.h1>
       <motion.div
         className="flex flex-col md:flex-row justify-between items-center mb-6"
@@ -111,7 +108,7 @@ const Reports = () => {
           <FaSearch className="absolute left-3 top-3 text-gray-400" />
           <input
             type="text"
-            placeholder="Search reports..."
+            placeholder="Search by date..."
             className="pl-10 pr-4 py-3 rounded-full shadow appearance-none border w-full text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-gray-300 transition duration-300"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
@@ -122,33 +119,45 @@ const Reports = () => {
         <table className="w-full text-left text-gray-800">
           <thead>
             <tr className="bg-gray-200">
-              <th className="p-3 cursor-pointer" onClick={() => requestSort('name')}>
-                Name {sortConfig.key === 'name' && (sortConfig.direction === 'ascending' ? '▲' : '▼')}
+              <th className="p-3 cursor-pointer" onClick={() => requestSort('date')}>
+                Date {sortConfig.key === 'date' && (sortConfig.direction === 'ascending' ? '▲' : '▼')}
               </th>
-              <th className="p-3">Description</th>
-              <th className="p-3 cursor-pointer" onClick={() => requestSort('lastUpdated')}>
-                Last Updated {sortConfig.key === 'lastUpdated' && (sortConfig.direction === 'ascending' ? '▲' : '▼')}
+              <th className="p-3 cursor-pointer" onClick={() => requestSort('totalSales')}>
+                Total Sales {sortConfig.key === 'totalSales' && (sortConfig.direction === 'ascending' ? '▲' : '▼')}
               </th>
+              <th className="p-3 cursor-pointer" onClick={() => requestSort('totalOrdersQty')}>
+                Total Orders {sortConfig.key === 'totalOrdersQty' && (sortConfig.direction === 'ascending' ? '▲' : '▼')}
+              </th>
+              <th className="p-3">Ramen Qty</th>
+              <th className="p-3">Side Dishes Qty</th>
+              <th className="p-3">Appetizers Qty</th>
+              <th className="p-3">Desserts Qty</th>
+              <th className="p-3">Drinks Qty</th>
               <th className="p-3">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {filteredReports.map((report) => (
+            {filteredSummaries.map((summary) => (
               <motion.tr
-                key={report.id}
+                key={summary.id}
                 className="border-b border-gray-200 hover:bg-gray-100"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.3 }}
               >
-                <td className="p-3">{report.name}</td>
-                <td className="p-3">{report.description}</td>
-                <td className="p-3">{new Date(report.lastUpdated).toLocaleDateString()}</td>
+                <td className="p-3">{summary.date}</td>
+                <td className="p-3">${summary.totalSales.toFixed(2)}</td>
+                <td className="p-3">{summary.totalOrdersQty}</td>
+                <td className="p-3">{summary.totalRamenQty}</td>
+                <td className="p-3">{summary.totalSideDishesQty}</td>
+                <td className="p-3">{summary.totalAppetizersQty}</td>
+                <td className="p-3">{summary.totalDessertsQty}</td>
+                <td className="p-3">{summary.totalDrinksQty}</td>
                 <td className="p-3">
                   <motion.button
                     className="bg-gray-700 text-white px-4 py-2 rounded-full hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-300 shadow-lg"
-                    onClick={() => handleDownloadReport(report.id)}
+                    onClick={() => handleDownloadReport(summary.date)}
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                   >

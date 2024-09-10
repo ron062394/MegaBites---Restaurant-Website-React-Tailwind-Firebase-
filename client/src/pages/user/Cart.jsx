@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { FaTrash, FaShoppingCart, FaArrowLeft, FaSave } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -17,6 +17,7 @@ const Cart = () => {
   const [discount, setDiscount] = useState(0);
   const { user } = useAuthContext();
   const [menuItems, setMenuItems] = useState({});
+  const navigate = useNavigate();
 
   const fetchMenuItems = useCallback(async () => {
     try {
@@ -80,6 +81,11 @@ const Cart = () => {
   const saveForLater = () => {
     // Implement save for later functionality
     toast.info('Items saved for later');
+  };
+
+  const handleCheckout = () => {
+    dispatch({ type: 'CLEAR_CART' });
+    navigate('/checkout');
   };
 
   const fadeInUp = {
@@ -237,13 +243,13 @@ const Cart = () => {
                   <p className="text-green-400 mt-2">Discount applied: ${discount.toFixed(2)}</p>
                 )}
               </div>
-              <Link
-                to="/checkout"
+              <button
+                onClick={handleCheckout}
                 className="bg-gray-800 text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-700 transition duration-300 shadow-lg inline-flex items-center"
               >
                 <FaShoppingCart className="mr-2" />
                 Proceed to Checkout
-              </Link>
+              </button>
             </motion.div>
           </>
         )}

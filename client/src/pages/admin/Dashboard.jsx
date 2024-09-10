@@ -11,6 +11,9 @@ import Users from '../../components/admin/Users';
 import Notifications from '../../components/admin/Notifications';
 import { db } from '../../firebase';
 import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { useLogout } from '../../hooks/useLogout';
+import { useAuthContext } from '../../hooks/useAuthContext';
+import { toast } from 'react-toastify';
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
@@ -27,6 +30,8 @@ const Dashboard = () => {
   const [notifications, setNotifications] = useState([]);
   const [productData, setProductData] = useState([]);
   const navigate = useNavigate();
+  const { logout } = useLogout();
+  const { user } = useAuthContext();
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -105,11 +110,14 @@ const Dashboard = () => {
     </motion.div>
   );
 
-  const handleLogout = () => {
-    // Implement logout logic here
-    // For example, clear local storage, reset state, etc.
-    // Then navigate to login page
-    navigate('/login');
+  const handleLogout = async () => {
+    try {
+      await logout();
+      toast.success('Logged out successfully');
+      navigate('/admin-login');
+    } catch (error) {
+      toast.error('Failed to log out');
+    }
   };
 
   const Sidebar = () => (

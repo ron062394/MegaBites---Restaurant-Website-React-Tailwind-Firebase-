@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { FaSearch, FaSort, FaEdit, FaTrash, FaPlus, FaTimes, FaSave } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -13,11 +13,10 @@ const Users = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [sortField, setSortField] = useState('name');
-  const [sortDirection, setSortDirection] = useState('asc');
+  const [sortConfig, setSortConfig] = useState({ key: 'name', direction: 'ascending' });
   const [searchTerm, setSearchTerm] = useState('');
   const [newUser, setNewUser] = useState({ name: '', email: '', password: '', role: 'staff' });
-  const [showAddUserForm, setShowAddUserForm] = useState(false);
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
 
   const fadeInUp = {
@@ -45,18 +44,18 @@ const Users = () => {
       setLoading(false);
     } catch (err) {
       console.error('Error fetching users:', err);
-      setError('Error: Failed to fetch users');
+      setError('Failed to fetch users');
       setLoading(false);
+      toast.error('Failed to fetch users. Please try again.');
     }
   };
 
-  const handleSort = (field) => {
-    if (field === sortField) {
-      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDirection('asc');
+  const requestSort = (key) => {
+    let direction = 'ascending';
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
     }
+    setSortConfig({ key, direction });
   };
 
   const handleSearch = (e) => {
@@ -79,7 +78,7 @@ const Users = () => {
       fetchUsers();
     } catch (err) {
       console.error('Error updating user:', err);
-      toast.error('Error: Failed to update user');
+      toast.error('Failed to update user. Please try again.');
     }
   };
 
@@ -88,27 +87,31 @@ const Users = () => {
   };
 
   const handleDeleteUser = async (id, uid) => {
-    try {
-      // Delete user from Firestore
-      await deleteDoc(doc(db, 'Admin', id));
+    const confirmDelete = window.confirm('Are you sure you want to delete this user?');
+    if (confirmDelete) {
+      try {
+        // Delete user from Firestore
+        await deleteDoc(doc(db, 'Admin', id));
 
-      // Delete user from Firebase Authentication
-      if (uid) {
-        const userToDelete = auth.currentUser;
-        if (userToDelete && userToDelete.uid === uid) {
-          await deleteUser(userToDelete);
+        // Delete user from Firebase Authentication
+        if (uid) {
+          const userToDelete = auth.currentUser;
+          if (userToDelete && userToDelete.uid === uid) {
+            await deleteUser(userToDelete);
+          }
         }
-      }
 
-      toast.success(`User ${id} deleted successfully`);
-      fetchUsers();
-    } catch (err) {
-      console.error('Error deleting user:', err);
-      toast.error('Error: Failed to delete user');
+        toast.success(`User has been deleted`);
+        fetchUsers();
+      } catch (err) {
+        console.error('Error deleting user:', err);
+        toast.error('Failed to delete user. Please try again.');
+      }
     }
   };
 
-  const handleAddUser = async () => {
+  const handleAddUser = async (e) => {
+    e.preventDefault();
     if (!newUser.name || !newUser.email || !newUser.password || !newUser.role) {
       toast.error('All fields are required');
       return;
@@ -126,212 +129,254 @@ const Users = () => {
         uid: firebaseUser.uid
       });
 
-      toast.success(`User ${newUser.name} created successfully`);
+      toast.success(`New user added successfully!`);
       setNewUser({ name: '', email: '', password: '', role: 'staff' });
-      setShowAddUserForm(false);
+      setIsUserModalOpen(false);
       fetchUsers();
-    } catch (err) {
-      console.error('Error adding user:', err);
-      toast.error('Error: Failed to create user');
+    } catch (error) {
+      console.error('Error adding user: ', error);
+      toast.error('Failed to add user. Please try again.');
     }
   };
 
-  const sortedUsers = [...users].sort((a, b) => {
-    if (a[sortField] < b[sortField]) return sortDirection === 'asc' ? -1 : 1;
-    if (a[sortField] > b[sortField]) return sortDirection === 'asc' ? 1 : -1;
-    return 0;
-  });
+  const sortedUsers = React.useMemo(() => {
+    let sortableUsers = [...users];
+    if (sortConfig.key !== null) {
+      sortableUsers.sort((a, b) => {
+        if (a[sortConfig.key] < b[sortConfig.key]) {
+          return sortConfig.direction === 'ascending' ? -1 : 1;
+        }
+        if (a[sortConfig.key] > b[sortConfig.key]) {
+          return sortConfig.direction === 'ascending' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableUsers;
+  }, [users, sortConfig]);
 
   const filteredUsers = sortedUsers.filter(user =>
     (user.name && user.name.toLowerCase().includes(searchTerm.toLowerCase())) ||
     (user.email && user.email.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
+  if (loading) return <div className="text-center text-2xl text-gray-800">Loading...</div>;
+  if (error) return <div className="text-center text-2xl text-red-500">Error: {error}</div>;
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 bg-white min-h-screen">
       <motion.h1
-        className="text-3xl font-bold text-gray-800 mb-8"
+        className="text-4xl font-bold mb-6 text-gray-800 text-center"
         initial="hidden"
         animate="visible"
         variants={fadeInUp}
       >
-        Manage Users
+        User Management
       </motion.h1>
-      {user.role !== 'admin' && (
-        <div className="mb-4">
-          <button
-            className="bg-blue-500 text-white px-4 py-2 rounded"
-            onClick={() => setShowAddUserForm(true)}
-          >
-            <FaPlus /> Add New User
-          </button>
-          {showAddUserForm && (
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="bg-white p-4 rounded shadow-md mt-4"
-            >
-              <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold">Add New User</h2>
-                <button
-                  className="text-gray-500 hover:text-gray-700"
-                  onClick={() => setShowAddUserForm(false)}
-                >
-                  <FaTimes />
-                </button>
-              </div>
-              <input
-                type="text"
-                placeholder="Name"
-                className="w-full px-4 py-2 rounded border mb-2"
-                value={newUser.name}
-                onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
-              />
-              <input
-                type="email"
-                placeholder="Email"
-                className="w-full px-4 py-2 rounded border mb-2"
-                value={newUser.email}
-                onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-              />
-              <input
-                type="password"
-                placeholder="Password"
-                className="w-full px-4 py-2 rounded border mb-2"
-                value={newUser.password}
-                onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-              />
-              <select
-                className="w-full px-4 py-2 rounded border mb-2"
-                value={newUser.role}
-                onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-              >
-                <option value="staff">Staff</option>
-                <option value="admin">Admin</option>
-              </select>
-              <button
-                className="bg-green-500 text-white px-4 py-2 rounded"
-                onClick={handleAddUser}
-              >
-                <FaPlus /> Add User
-              </button>
-            </motion.div>
-          )}
-        </div>
-      )}
-      <div className="mb-4">
-        <input
-          type="text"
-          placeholder="Search users..."
-          className="w-full px-4 py-2 rounded border"
-          value={searchTerm}
-          onChange={handleSearch}
-        />
-      </div>
       <motion.div
-        className="bg-white shadow-md rounded-lg overflow-hidden"
-        variants={fadeInUp}
+        className="flex flex-col md:flex-row justify-between items-center mb-6"
         initial="hidden"
         animate="visible"
+        variants={fadeInUp}
       >
-        <table className="min-w-full">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Name
-                <button onClick={() => handleSort('name')} className="ml-2">
-                  <FaSort />
-                </button>
+        <motion.button
+          className="bg-gray-700 text-white px-6 py-3 rounded-full mb-4 md:mb-0 flex items-center justify-center hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-300 shadow-lg"
+          onClick={() => setIsUserModalOpen(true)}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <FaPlus className="mr-2" /> Add New User
+        </motion.button>
+        <div className="relative">
+          <FaSearch className="absolute left-3 top-3 text-gray-400" />
+          <input
+            type="text"
+            placeholder="Search users..."
+            className="pl-10 pr-4 py-3 rounded-full shadow appearance-none border w-full text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-gray-300 transition duration-300"
+            value={searchTerm}
+            onChange={handleSearch}
+          />
+        </div>
+      </motion.div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-left text-gray-800">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="p-3 cursor-pointer" onClick={() => requestSort('name')}>
+                Name {sortConfig.key === 'name' && (sortConfig.direction === 'ascending' ? '▲' : '▼')}
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Email
-                <button onClick={() => handleSort('email')} className="ml-2">
-                  <FaSort />
-                </button>
+              <th className="p-3 cursor-pointer" onClick={() => requestSort('email')}>
+                Email {sortConfig.key === 'email' && (sortConfig.direction === 'ascending' ? '▲' : '▼')}
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Role
-                <button onClick={() => handleSort('role')} className="ml-2">
-                  <FaSort />
-                </button>
+              <th className="p-3 cursor-pointer" onClick={() => requestSort('role')}>
+                Role {sortConfig.key === 'role' && (sortConfig.direction === 'ascending' ? '▲' : '▼')}
               </th>
-              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Actions
-              </th>
+              <th className="p-3">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {filteredUsers.map((user) => (
-              <tr key={user.id} className="border-b">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  {editingUser && editingUser.id === user.id ? (
-                    <input
-                      type="text"
-                      value={editingUser.name}
-                      onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
-                      className="w-full px-2 py-1 border rounded"
-                    />
-                  ) : (
-                    user.name
-                  )}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">{user.email}</td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  {editingUser && editingUser.id === user.id ? (
-                    <select
-                      value={editingUser.role}
-                      onChange={(e) => setEditingUser({ ...editingUser, role: e.target.value })}
-                      className="w-full px-2 py-1 border rounded"
-                    >
-                      <option value="staff">Staff</option>
-                      <option value="admin">Admin</option>
-                    </select>
-                  ) : (
-                    user.role
-                  )}
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  {editingUser && editingUser.id === user.id ? (
-                    <>
-                      <button
-                        className="text-green-500 mr-2"
-                        onClick={handleSaveEdit}
+            <AnimatePresence>
+              {filteredUsers.map((user) => (
+                <motion.tr
+                  key={user.id}
+                  className="border-b border-gray-200 hover:bg-gray-100"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <td className="p-3">
+                    {editingUser && editingUser.id === user.id ? (
+                      <input
+                        type="text"
+                        value={editingUser.name}
+                        onChange={(e) => setEditingUser({ ...editingUser, name: e.target.value })}
+                        className="w-full px-2 py-1 border rounded"
+                      />
+                    ) : (
+                      user.name
+                    )}
+                  </td>
+                  <td className="p-3">{user.email}</td>
+                  <td className="p-3">
+                    {editingUser && editingUser.id === user.id ? (
+                      <select
+                        value={editingUser.role}
+                        onChange={(e) => setEditingUser({ ...editingUser, role: e.target.value })}
+                        className="w-full px-2 py-1 border rounded"
                       >
-                        <FaSave />
-                      </button>
-                      <button
-                        className="text-gray-500"
-                        onClick={handleCancelEdit}
-                      >
-                        <FaTimes />
-                      </button>
-                    </>
-                  ) : (
-                    <>
-                      <button
-                        className="text-blue-500 mr-2"
-                        onClick={() => handleEditUser(user)}
-                      >
-                        <FaEdit />
-                      </button>
-                      <button
-                        className="text-red-500"
-                        onClick={() => handleDeleteUser(user.id, user.uid)}
-                      >
-                        <FaTrash />
-                      </button>
-                    </>
-                  )}
-                </td>
-              </tr>
-            ))}
+                        <option value="staff">Staff</option>
+                        <option value="admin">Admin</option>
+                      </select>
+                    ) : (
+                      user.role
+                    )}
+                  </td>
+                  <td className="p-3">
+                    {editingUser && editingUser.id === user.id ? (
+                      <>
+                        <motion.button
+                          className="bg-gray-700 text-white px-4 py-2 rounded-full mr-2 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-300 shadow-lg"
+                          onClick={handleSaveEdit}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <FaSave className="mr-2 inline" /> Save
+                        </motion.button>
+                        <motion.button
+                          className="bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-300 shadow-lg"
+                          onClick={handleCancelEdit}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <FaTimes className="mr-2 inline" /> Cancel
+                        </motion.button>
+                      </>
+                    ) : (
+                      <>
+                        <motion.button
+                          className="bg-gray-700 text-white px-4 py-2 rounded-full mr-2 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-300 shadow-lg"
+                          onClick={() => handleEditUser(user)}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <FaEdit className="mr-2 inline" /> Edit
+                        </motion.button>
+                        <motion.button
+                          className="bg-red-600 text-white px-4 py-2 rounded-full hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition duration-300 shadow-lg"
+                          onClick={() => handleDeleteUser(user.id, user.uid)}
+                          whileHover={{ scale: 1.05 }}
+                          whileTap={{ scale: 0.95 }}
+                        >
+                          <FaTrash className="mr-2 inline" /> Delete
+                        </motion.button>
+                      </>
+                    )}
+                  </td>
+                </motion.tr>
+              ))}
+            </AnimatePresence>
           </tbody>
         </table>
-      </motion.div>
+      </div>
+      <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
+      <AnimatePresence>
+        {isUserModalOpen && (
+          <motion.div
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <div className="bg-white p-8 rounded-lg shadow-xl max-w-md w-full">
+              <h2 className="text-2xl font-bold mb-4">Add New User</h2>
+              <form onSubmit={handleAddUser}>
+                <div className="mb-4">
+                  <label htmlFor="name" className="block text-gray-700 text-sm font-bold mb-2">Name</label>
+                  <input
+                    type="text"
+                    id="name"
+                    value={newUser.name}
+                    onChange={(e) => setNewUser({ ...newUser, name: e.target.value })}
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">Email</label>
+                  <input
+                    type="email"
+                    id="email"
+                    value={newUser.email}
+                    onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">Password</label>
+                  <input
+                    type="password"
+                    id="password"
+                    value={newUser.password}
+                    onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    required
+                  />
+                </div>
+                <div className="mb-4">
+                  <label htmlFor="role" className="block text-gray-700 text-sm font-bold mb-2">Role</label>
+                  <select
+                    id="role"
+                    value={newUser.role}
+                    onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
+                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                    required
+                  >
+                    <option value="staff">Staff</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+                <div className="flex items-center justify-between">
+                  <button
+                    type="submit"
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                  >
+                    Add User
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsUserModalOpen(false)}
+                    className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <ToastContainer />
     </div>
   );

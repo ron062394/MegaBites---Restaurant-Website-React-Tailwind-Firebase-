@@ -42,8 +42,10 @@ const Checkout = () => {
 
       if (cartSnap.exists()) {
         const cartData = cartSnap.data();
-        setCartItems(cartData.items);
-        setTotal(cartData.totalAmount);
+        setCartItems(cartData.items || []);
+        // Calculate total here
+        const calculatedTotal = (cartData.items || []).reduce((sum, item) => sum + (item.price * item.quantity), 0);
+        setTotal(calculatedTotal);
       } else {
         setCartItems([]);
         setTotal(0);
@@ -136,9 +138,21 @@ const Checkout = () => {
 
       // Save payment method to user profile
       const userRef = doc(db, 'Customer', user.uid);
-      await updateDoc(userRef, {
-        preferredPaymentMethod: paymentMethod
-      });
+      const userSnap = await getDoc(userRef);
+
+      if (userSnap.exists()) {
+        await updateDoc(userRef, {
+          preferredPaymentMethod: paymentMethod
+        });
+      } else {
+        // If the Customer document doesn't exist, create it
+        await setDoc(userRef, {
+          fullName: formData.name,
+          phoneNumber: formData.phone,
+          userAddress: formData.address,
+          preferredPaymentMethod: paymentMethod
+        });
+      }
 
       toast.success('Order placed successfully!');
       setTimeout(() => {
