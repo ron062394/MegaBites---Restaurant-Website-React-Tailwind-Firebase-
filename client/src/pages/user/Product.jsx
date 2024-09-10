@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaShoppingCart, FaArrowLeft, FaStar, FaHeart, FaShare } from 'react-icons/fa';
@@ -7,6 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { db } from '../../firebase';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { useAuthContext } from '../../hooks/useAuthContext';
+import { CartContext } from '../../context/cartContext';
 
 const Product = () => {
   const { id } = useParams();
@@ -17,6 +18,7 @@ const Product = () => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
   const { user } = useAuthContext();
+  const { dispatch } = useContext(CartContext);
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -98,6 +100,7 @@ const Product = () => {
         await setDoc(cartRef, newCart);
       }
 
+      dispatch({ type: 'ADD_ITEM', payload: { id: product.id, name: product.name, quantity, price: product.price, category: product.category } });
       toast.success(`Added ${quantity} ${quantity > 1 ? 'items' : 'item'} of ${product.name} to cart!`);
     } catch (error) {
       console.error('Error adding to cart:', error);
@@ -263,6 +266,7 @@ const Product = () => {
                     whileTap={{ scale: 0.95 }}
                     className="w-full bg-gray-800 text-white px-4 py-2 rounded-full transition duration-300 hover:bg-gray-700"
                     onClick={() => {
+                      dispatch({ type: 'ADD_ITEM', payload: { id: item.id, name: item.name, quantity: 1, price: item.price, category: item.category } });
                       toast.success(`Added ${item.name} to cart!`);
                     }}
                   >

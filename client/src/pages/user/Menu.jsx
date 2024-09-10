@@ -1,20 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaShoppingCart, FaSearch } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Link } from 'react-router-dom';
 import { db } from '../../firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { useAuthContext } from '../../hooks/useAuthContext';
+import { CartContext } from '../../context/cartContext';
 
 const Menu = () => {
   const [menuItems, setMenuItems] = useState([]);
-  const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeCategory, setActiveCategory] = useState('Ramen');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
+  const { user } = useAuthContext();
+  const { dispatch } = useContext(CartContext);
 
   const fetchMenuItems = async () => {
     try {
@@ -31,9 +34,60 @@ const Menu = () => {
     }
   };
 
-  const addToCart = (item) => {
-    setCart([...cart, item]);
-    toast.success(`Added ${item.name} to cart!`);
+  const addToCart = async (item) => {
+    if (!user) {
+      toast.error('Please sign in to add items to your cart');
+      return;
+    }
+
+    try {
+      const cartRef = doc(db, 'Cart', user.uid);
+      const cartSnap = await getDoc(cartRef);
+
+      if (cartSnap.exists()) {
+        const cartData = cartSnap.data();
+        const existingItemIndex = cartData.items.findIndex(cartItem => cartItem.itemId === item.id);
+
+        if (existingItemIndex !== -1) {
+          cartData.items[existingItemIndex].quantity += 1;
+        } else {
+          cartData.items.push({
+            itemId: item.id,
+            name: item.name,
+            quantity: 1,
+            price: item.price,
+            category: item.category
+          });
+        }
+
+        cartData.totalAmount = cartData.items.reduce((total, cartItem) => total + (cartItem.price * cartItem.quantity), 0);
+        cartData.updatedAt = new Date().toISOString();
+
+        await updateDoc(cartRef, cartData);
+      } else {
+        const newCart = {
+          userId: user.uid,
+          items: [{
+            itemId: item.id,
+            name: item.name,
+            quantity: 1,
+            price: item.price,
+            category: item.category
+          }],
+          totalAmount: item.price,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        };
+
+        await setDoc(cartRef, newCart);
+      }
+
+      dispatch({ type: 'ADD_ITEM', payload: { id: item.id, name: item.name, quantity: 1, price: item.price, category: item.category } });
+      toast.success(`Added ${item.name} to cart!`);
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+      toast.error('Failed to add item to cart. Please try again.');
+    }
   };
 
   const fadeInUp = {
@@ -144,7 +198,7 @@ const Menu = () => {
                 <Link to={`/product/${item.id}`}>
                   <img src={item.imageURL} alt={item.name} className="w-full h-48 object-cover cursor-pointer transition duration-300 hover:opacity-80" />
                 </Link>
-                <div className="p-6">
+                <div className="p-6 text-left">
                   <Link to={`/product/${item.id}`}>
                     <h3 className="text-2xl font-bold text-gray-900 mb-2 cursor-pointer hover:text-yellow-600 transition duration-300">{item.name}</h3>
                   </Link>

@@ -1,15 +1,16 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { FaTrash, FaShoppingCart, FaArrowLeft, FaSave } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { db } from '../../firebase';
-import { doc, getDoc, updateDoc, deleteDoc, collection, getDocs } from 'firebase/firestore';
 import { useAuthContext } from '../../hooks/useAuthContext';
+import { CartContext } from '../../context/cartContext';
+import { getDocs, collection } from 'firebase/firestore';
+import { db } from '../../firebase';
 
 const Cart = () => {
-  const [cartItems, setCartItems] = useState([]);
+  const { cart, dispatch } = useContext(CartContext);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const [couponCode, setCouponCode] = useState('');
@@ -30,109 +31,40 @@ const Cart = () => {
     }
   }, []);
 
-  const fetchCartItems = useCallback(async () => {
-    if (!user) {
-      setLoading(false);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      const cartRef = doc(db, 'Cart', user.uid);
-      const cartSnap = await getDoc(cartRef);
-
-      if (cartSnap.exists()) {
-        const cartData = cartSnap.data();
-        const itemsWithImages = cartData.items.map(item => ({
-          ...item,
-          image: menuItems[item.itemId]?.imageURL || '',
-          category: menuItems[item.itemId]?.category || 'Unknown'
-        }));
-        setCartItems(itemsWithImages);
-        setTotal(cartData.totalAmount);
-      } else {
-        setCartItems([]);
-        setTotal(0);
-      }
-    } catch (error) {
-      console.error('Error fetching cart items:', error);
-      toast.error('Failed to load cart items. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  }, [user, menuItems]);
-
   useEffect(() => {
     fetchMenuItems();
   }, [fetchMenuItems]);
 
   useEffect(() => {
     if (Object.keys(menuItems).length > 0) {
-      fetchCartItems();
+      setLoading(false);
     }
-  }, [fetchCartItems, menuItems]);
+  }, [menuItems]);
 
   useEffect(() => {
-    const newTotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+    const newTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
     setTotal(newTotal - discount);
-  }, [cartItems, discount]);
+  }, [cart, discount]);
 
-  const removeItem = async (itemId) => {
-    if (!user) return;
-
-    try {
-      const cartRef = doc(db, 'Cart', user.uid);
-      const cartSnap = await getDoc(cartRef);
-
-      if (cartSnap.exists()) {
-        const cartData = cartSnap.data();
-        const updatedItems = cartData.items.filter(item => item.itemId !== itemId);
-        const updatedTotal = updatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
-        await updateDoc(cartRef, {
-          items: updatedItems,
-          totalAmount: updatedTotal,
-          updatedAt: new Date().toISOString()
-        });
-
-        setCartItems(updatedItems);
-        setTotal(updatedTotal);
-        toast.success('Item removed from cart');
-      }
-    } catch (error) {
-      console.error('Error removing item from cart:', error);
-      toast.error('Failed to remove item. Please try again.');
+  useEffect(() => {
+    if (user && cart.length === 0) {
+      dispatch({ type: 'FETCH_CART' });
     }
+  }, [user, cart.length, dispatch]);
+
+  const removeItem = (itemId) => {
+    dispatch({ type: 'REMOVE_ITEM', payload: { id: itemId } });
+    toast.success('Item removed from cart');
   };
 
-  const updateQuantity = async (itemId, newQuantity) => {
-    if (!user) return;
+  const incrementQuantity = (itemId) => {
+    dispatch({ type: 'INCREMENT_ITEM', payload: { id: itemId } });
+    toast.success('Cart updated');
+  };
 
-    try {
-      const cartRef = doc(db, 'Cart', user.uid);
-      const cartSnap = await getDoc(cartRef);
-
-      if (cartSnap.exists()) {
-        const cartData = cartSnap.data();
-        const updatedItems = cartData.items.map(item => 
-          item.itemId === itemId ? { ...item, quantity: Math.max(1, newQuantity) } : item
-        );
-        const updatedTotal = updatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
-
-        await updateDoc(cartRef, {
-          items: updatedItems,
-          totalAmount: updatedTotal,
-          updatedAt: new Date().toISOString()
-        });
-
-        setCartItems(updatedItems);
-        setTotal(updatedTotal);
-        toast.success('Cart updated');
-      }
-    } catch (error) {
-      console.error('Error updating cart:', error);
-      toast.error('Failed to update cart. Please try again.');
-    }
+  const decrementQuantity = (itemId) => {
+    dispatch({ type: 'DECREMENT_ITEM', payload: { id: itemId } });
+    toast.success('Cart updated');
   };
 
   const applyCoupon = () => {
@@ -187,7 +119,7 @@ const Cart = () => {
         >
           Your Cart
         </motion.h1>
-        {cartItems.length === 0 ? (
+        {cart.length === 0 ? (
           <motion.div
             className="bg-white bg-opacity-10 rounded-lg shadow-lg p-8 backdrop-filter backdrop-blur-lg text-center"
             initial="hidden"
@@ -212,10 +144,10 @@ const Cart = () => {
               variants={fadeInUp}
             >
               <AnimatePresence>
-                {cartItems.map((item, index) => (
+                {cart.map((item, index) => (
                   <motion.div
-                    key={item.itemId}
-                    className={`flex items-center justify-between p-6 ${index !== cartItems.length - 1 ? 'border-b border-gray-700' : ''}`}
+                    key={item.id}
+                    className={`flex items-center justify-between p-6 ${index !== cart.length - 1 ? 'border-b border-gray-700' : ''}`}
                     variants={itemVariants}
                     initial="hidden"
                     animate="visible"
@@ -223,11 +155,11 @@ const Cart = () => {
                     layout
                   >
                     <div className="flex items-center flex-1">
-                      <img src={item.image} alt={item.name} className="w-20 h-20 object-cover rounded-lg mr-6" />
+                      <img src={menuItems[item.itemId]?.imageURL || ''} alt={item.name} className="w-20 h-20 object-cover rounded-lg mr-6" />
                       <div>
                         <h3 className="text-xl font-semibold text-white">{item.name}</h3>
                         <p className="text-gray-400">${item.price.toFixed(2)}</p>
-                        <p className="text-gray-500">{item.category}</p>
+                        <p className="text-gray-500">{menuItems[item.itemId]?.category || 'Unknown'}</p>
                       </div>
                     </div>
                     <div className="flex items-center">
@@ -235,7 +167,7 @@ const Cart = () => {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         className="px-3 py-1 bg-gray-800 text-white rounded-l hover:bg-gray-700 transition duration-300"
-                        onClick={() => updateQuantity(item.itemId, item.quantity - 1)}
+                        onClick={() => decrementQuantity(item.id)}
                       >
                         -
                       </motion.button>
@@ -244,7 +176,7 @@ const Cart = () => {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         className="px-3 py-1 bg-gray-800 text-white rounded-r hover:bg-gray-700 transition duration-300"
-                        onClick={() => updateQuantity(item.itemId, item.quantity + 1)}
+                        onClick={() => incrementQuantity(item.id)}
                       >
                         +
                       </motion.button>
@@ -252,7 +184,7 @@ const Cart = () => {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         className="ml-6 text-red-500 hover:text-red-400 transition duration-300"
-                        onClick={() => removeItem(item.itemId)}
+                        onClick={() => removeItem(item.id)}
                       >
                         <FaTrash size={20} />
                       </motion.button>

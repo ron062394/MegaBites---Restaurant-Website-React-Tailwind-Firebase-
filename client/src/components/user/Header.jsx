@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useContext, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import Logo from '../utils/Logo';
@@ -6,12 +6,25 @@ import { useLogout } from '../../hooks/useLogout';
 import { useAuthContext } from '../../hooks/useAuthContext';
 import { toast } from 'react-toastify';
 import { FaShoppingCart, FaUser } from 'react-icons/fa';
+import { CartContext } from '../../context/cartContext';
 
 function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { logout } = useLogout();
   const { user } = useAuthContext();
+  const { cart, dispatch } = useContext(CartContext);
   const navigate = useNavigate();
+  const [cartCount, setCartCount] = useState(0);
+
+  useEffect(() => {
+    if (user && cart.length === 0) {
+      dispatch({ type: 'FETCH_CART' });
+    }
+  }, [user, cart.length, dispatch]);
+
+  useEffect(() => {
+    setCartCount(cart.reduce((total, item) => total + item.quantity, 0));
+  }, [cart]);
 
   const fadeInUp = {
     hidden: { opacity: 0, y: -20 },
@@ -29,6 +42,7 @@ function Header() {
   const handleLogout = async () => {
     try {
       await logout();
+      dispatch({ type: 'CLEAR_CART' });
       toast.success('Logged out successfully');
       navigate('/');
     } catch (error) {
@@ -68,6 +82,11 @@ function Header() {
               <>
                 <Link to="/cart" className="mr-4">
                   <FaShoppingCart className="text-2xl text-yellow-400 hover:text-yellow-500 transition duration-300" />
+                  {cartCount > 0 && (
+                    <span className="ml-1 text-sm bg-red-500 text-white rounded-full px-2 py-1">
+                      {cartCount}
+                    </span>
+                  )}
                 </Link>
                 <Link to="/profile" className="mr-4">
                   <FaUser className="text-2xl text-yellow-400 hover:text-yellow-500 transition duration-300" />
@@ -125,6 +144,11 @@ function Header() {
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <FaShoppingCart className="inline mr-2" /> Cart
+                  {cartCount > 0 && (
+                    <span className="ml-1 text-sm bg-red-500 text-white rounded-full px-2 py-1">
+                      {cartCount}
+                    </span>
+                  )}
                 </Link>
                 <Link 
                   to="/profile" 
