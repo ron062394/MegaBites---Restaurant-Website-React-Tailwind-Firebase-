@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { FaLock, FaUser, FaSignInAlt } from 'react-icons/fa';
+import { FaLock, FaUser, FaSignInAlt, FaInfoCircle } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Logo from '../../components/utils/Logo';
@@ -108,6 +108,14 @@ const AdminLogin = () => {
             </div>
           </div>
         </motion.div>
+      </div>
+      <div className="fixed bottom-8 right-8 bg-white p-8 rounded-xl shadow-2xl z-50">
+        <h3 className="text-2xl font-bold mb-4 flex items-center">
+          <FaInfoCircle className="mr-3 text-blue-500 text-3xl" />
+          Demo Credentials
+        </h3>
+        <p className="text-xl mb-2"><strong>Email:</strong> admin1234@gmail.com</p>
+        <p className="text-xl"><strong>Password:</strong> admin1234@gmail.com</p>
       </div>
     </div>
   );
