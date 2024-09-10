@@ -2,6 +2,8 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FaUtensils, FaHistory, FaHeart, FaLeaf, FaUsers, FaAward, FaHandshake, FaImage } from 'react-icons/fa';
 import { useInView } from 'react-intersection-observer';
+import Gallery from '../../components/user/Gallery';
+import { Link } from 'react-router-dom';
 
 const AboutUs = () => {
   const [ref, inView] = useInView({
@@ -75,10 +77,19 @@ const AboutUs = () => {
           >
             <h3 className="text-3xl font-bold text-white mb-4">Welcome to Our Ramen Haven</h3>
             <p className="text-gray-300 mb-6">Step into Tonkotsu Corner, where the rich aroma of authentic Japanese ramen fills the air. Our cozy and modern interior provides the perfect backdrop for an unforgettable dining experience. Whether you're a ramen enthusiast or new to this culinary delight, our warm atmosphere and exceptional service will make you feel right at home.</p>
-            <button className="btn px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition duration-300 bg-gradient-to-r from-yellow-400 to-red-500 text-white font-bold text-lg hover:from-yellow-500 hover:to-red-600 inline-flex items-center transform hover:scale-105">
+            <Link
+              to="#gallery"
+              className="btn px-6 py-3 rounded-full shadow-lg hover:shadow-xl transition duration-300 bg-gradient-to-r from-yellow-400 to-red-500 text-white font-bold text-lg hover:from-yellow-500 hover:to-red-600 inline-flex items-center transform hover:scale-105"
+              onClick={(e) => {
+                e.preventDefault();
+                document.querySelector('#gallery').scrollIntoView({
+                  behavior: 'smooth'
+                });
+              }}
+            >
               <FaImage className="mr-2" />
               View Gallery
-            </button>
+            </Link>
           </motion.div>
         </div>
         
@@ -137,6 +148,7 @@ const AboutUs = () => {
             Make a Reservation
           </button>
         </motion.div>
+        <Gallery />
       </div>
     </section>
   );

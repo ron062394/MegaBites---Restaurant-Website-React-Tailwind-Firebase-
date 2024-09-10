@@ -67,7 +67,7 @@ const Gallery = () => {
   );
 
   return (
-    <section className="bg-gradient-to-r from-gray-900 to-black py-20 px-4 sm:px-6 lg:px-8">
+    <section id='gallery' className="bg-gradient-to-r from-gray-900 to-black py-20 px-4 sm:px-6 lg:px-8">
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
       <div className="max-w-7xl mx-auto">
         <motion.div 
