@@ -154,7 +154,7 @@ const Menu = () => {
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
       <div className="max-w-7xl mx-auto">
         <motion.div 
-          className="text-center mb-20"
+          className="text-center mb-8"
           initial="hidden"
           animate="visible"
           variants={fadeInUp}
@@ -162,7 +162,7 @@ const Menu = () => {
           <h2 className="text-4xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-red-600 mb-4">Our Delightful Menu</h2>
           <p className="mt-4 text-2xl text-gray-300">Experience the authentic flavors of Tonkotsu Corner</p>
         </motion.div>
-        <div className="mb-10 flex flex-wrap justify-center">
+        <div className="mb-8 flex flex-wrap justify-center">
           {categories.map(category => (
             <motion.button
               key={category}
