@@ -7,18 +7,13 @@ import 'react-toastify/dist/ReactToastify.css';
 import Logo from '../../components/utils/Logo';
 import { useLogin } from '../../hooks/useLogin';
 
-
-
 const Signin = () => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
-  const [error, setError] = useState('');
   const navigate = useNavigate();
-  const { signin, isLoading, error: signinError } = useLogin();
-  const { loginWithGoogle, isLoading: isGoogleLoading, error: googleError } = useLogin();
-  const { loginWithFacebook, isLoading: isFacebookLoading, error: facebookError } = useLogin();
+  const { login, loginWithGoogle, loginWithFacebook, isLoading, error } = useLogin();
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -30,19 +25,17 @@ const Signin = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
 
     try {
-      await signin(formData.email, formData.password);
-      if (signinError) {
-        setError(signinError);
-        toast.error(signinError);
-        return;
+      await login(formData.email, formData.password);
+      if (!error) {
+        toast.success('Login successful');
+        navigate('/');
+      } else {
+        toast.error(error);
       }
-      toast.success('Login successful');
-      navigate('/');
-    } catch (error) {
-      setError('An error occurred. Please try again.');
+    } catch (err) {
+      console.error(err);
       toast.error('An error occurred. Please try again.');
     }
   };
@@ -50,15 +43,14 @@ const Signin = () => {
   const handleGoogleLogin = async () => {
     try {
       await loginWithGoogle();
-      if (googleError) {
-        setError(googleError);
-        toast.error(googleError);
-        return;
+      if (!error) {
+        toast.success('Login successful');
+        navigate('/');
+      } else {
+        toast.error(error);
       }
-      toast.success('Login successful');
-      navigate('/');
-    } catch (error) {
-      setError('An error occurred. Please try again.');
+    } catch (err) {
+      console.error(err);
       toast.error('An error occurred. Please try again.');
     }
   };
@@ -66,20 +58,17 @@ const Signin = () => {
   const handleFacebookLogin = async () => {
     try {
       await loginWithFacebook();
-      if (facebookError) {
-        setError(facebookError);
-        toast.error(facebookError);
-        return; 
+      if (!error) {
+        toast.success('Login successful');
+        navigate('/');
+      } else {
+        toast.error(error);
       }
-      toast.success('Login successful');
-      navigate('/');
-    } catch (error) {
-      setError('An error occurred. Please try again.');
+    } catch (err) {
+      console.error(err);
       toast.error('An error occurred. Please try again.');
     }
   };
-  
-
 
   const fadeInUp = {
     hidden: { opacity: 0, y: 20 },
@@ -179,9 +168,10 @@ const Signin = () => {
                     whileTap={{ scale: 0.95 }}
                     className="w-full flex justify-center py-4 px-6 border border-transparent rounded-full shadow-lg text-lg font-medium text-white bg-gray-700 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-300 ease-in-out"
                     type="submit"
+                    disabled={isLoading}
                   >
                     <FaSignInAlt className="mr-3" />
-                    <span>Sign In</span>
+                    <span>{isLoading ? 'Signing in...' : 'Sign In'}</span>
                   </motion.button>
                 </div>
               </form>
@@ -206,6 +196,7 @@ const Signin = () => {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={index === 0 ? handleFacebookLogin : handleGoogleLogin}
+                      disabled={isLoading}
                     >
                       <Icon className="w-6 h-6" />
                     </motion.button>

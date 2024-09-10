@@ -12,8 +12,9 @@ const Menu = () => {
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeCategory, setActiveCategory] = useState('All');
+  const [activeCategory, setActiveCategory] = useState('Ramen');
   const [searchTerm, setSearchTerm] = useState('');
+  const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
 
   const fetchMenuItems = async () => {
     try {
@@ -44,15 +45,54 @@ const Menu = () => {
     fetchMenuItems();
   }, []);
 
-  const categories = ['All', ...new Set(menuItems.map(item => item.category))];
+  const categories = ['Ramen', 'Appetizers', 'Side Dishes', 'Desserts', 'Drinks'];
 
-  const filteredMenuItems = menuItems
-    .filter(item => item.available)
-    .filter(item => activeCategory === 'All' || item.category === activeCategory)
+  const sortedItems = React.useMemo(() => {
+    let sortableItems = [...menuItems];
+    if (sortConfig.key !== null) {
+      sortableItems.sort((a, b) => {
+        if (a[sortConfig.key] < b[sortConfig.key]) {
+          return sortConfig.direction === 'ascending' ? -1 : 1;
+        }
+        if (a[sortConfig.key] > b[sortConfig.key]) {
+          return sortConfig.direction === 'ascending' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableItems;
+  }, [menuItems, sortConfig]);
+
+  const requestSort = (key) => {
+    let direction = 'ascending';
+    if (sortConfig.key === key && sortConfig.direction === 'ascending') {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  const filteredMenuItems = sortedItems
+    .filter(item => item.category === activeCategory)
     .filter(item => item.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
-  if (loading) return <div className="flex items-center justify-center h-screen text-3xl font-bold text-gray-200">Loading...</div>;
-  if (error) return <div className="flex items-center justify-center h-screen text-3xl font-bold text-red-500">Error: {error}</div>;
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-r from-gray-900 to-black">
+      <div className="w-16 h-16 border-t-4 border-yellow-500 border-solid rounded-full animate-spin mb-4"></div>
+    </div>
+  );
+  
+  if (error) return (
+    <div className="flex flex-col items-center justify-center h-screen bg-gradient-to-r from-gray-900 to-black">
+      
+      <p className="text-2xl font-semibold text-red-500">Error: {error}</p>
+      <button 
+        onClick={fetchMenuItems} 
+        className="mt-4 px-6 py-2 bg-yellow-500 text-white rounded-full hover:bg-yellow-600 transition duration-300"
+      >
+        Try Again
+      </button>
+    </div>
+  );
 
   return (
     <section id='menu' className="bg-gradient-to-r from-gray-900 to-black py-20 px-4 sm:px-6 lg:px-8 min-h-screen">
@@ -110,7 +150,7 @@ const Menu = () => {
                   </Link>
                   <p className="text-gray-600 mb-4 text-sm">{item.description}</p>
                   <div className="flex justify-between items-center">
-                    <p className="text-xl font-bold text-yellow-600">${item.price.toFixed(2)}</p>
+                    <p className="text-xl font-bold text-yellow-600">${typeof item.price === 'number' ? item.price.toFixed(2) : parseFloat(item.price).toFixed(2)}</p>
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}

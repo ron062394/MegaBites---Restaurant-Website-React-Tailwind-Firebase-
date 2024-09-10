@@ -1,44 +1,71 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FaUsers, FaUtensils, FaClipboardList, FaChartLine, FaTachometerAlt, FaList, FaCog, FaSignOutAlt, FaBell, FaShoppingCart, FaDollarSign } from 'react-icons/fa';
+import { FaUsers, FaUtensils, FaClipboardList, FaChartLine, FaTachometerAlt, FaList, FaCog, FaSignOutAlt, FaBell, FaShoppingCart, FaDollarSign, FaCalendarAlt } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import Reports from '../../components/admin/Reports';
 import Reservations from '../../components/admin/Reservations';
 import MenuItems from '../../components/admin/MenuItems';
 import Orders from '../../components/admin/Orders';
 import Users from '../../components/admin/Users';
 import Notifications from '../../components/admin/Notifications';
+import { db } from '../../firebase';
+import { doc, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 
 const Dashboard = () => {
   const [stats, setStats] = useState({
-    totalUsers: 0,
-    totalOrders: 0,
-    totalMenuItems: 0,
-    revenue: 0,
-    todaySales: 0,
-    todayOrders: 0
+    dailySales: 0,
+    dailyOrders: 0,
+    dailyAC: 0,
+    totalRamenQty: 0,
+    totalAppetizersQty: 0,
+    totalSideDishesQty: 0,
+    totalDessertsQty: 0,
+    totalDrinksQty: 0
   });
   const [activeComponent, setActiveComponent] = useState('dashboard');
   const [notifications, setNotifications] = useState([]);
-  const [salesData, setSalesData] = useState([]);
+  const [productData, setProductData] = useState([]);
   const navigate = useNavigate();
 
   useEffect(() => {
-    // Fetch dashboard stats from API
-    // This is a placeholder. Replace with actual API call
     const fetchStats = async () => {
-      // Simulating API call with setTimeout
-      setTimeout(() => {
-        setStats({
-          totalUsers: 1250,
-          totalOrders: 5678,
-          totalMenuItems: 42,
-          revenue: 98765,
-          todaySales: 2500,
-          todayOrders: 75
-        });
-      }, 1000);
+      try {
+        const today = new Date();
+        
+        // Fetch daily data
+        const dailySummaryRef = doc(db, 'DailySummary', today.toISOString().split('T')[0]);
+        const dailySummarySnap = await getDoc(dailySummaryRef);
+        
+        let dailyData = {};
+        if (dailySummarySnap.exists()) {
+          dailyData = dailySummarySnap.data();
+        }
+        
+        const newStats = {
+          dailySales: dailyData.totalSales || 0,
+          dailyOrders: dailyData.totalOrdersQty || 0,
+          dailyAC: dailyData.totalOrdersQty > 0 ? dailyData.totalSales / dailyData.totalOrdersQty : 0,
+          totalRamenQty: dailyData.totalRamenQty || 0,
+          totalAppetizersQty: dailyData.totalAppetizersQty || 0,
+          totalSideDishesQty: dailyData.totalSideDishesQty || 0,
+          totalDessertsQty: dailyData.totalDessertsQty || 0,
+          totalDrinksQty: dailyData.totalDrinksQty || 0
+        };
+        
+        setStats(newStats);
+        
+        // Update product data for chart
+        setProductData([
+          { name: 'Ramen', quantity: newStats.totalRamenQty },
+          { name: 'Appetizers', quantity: newStats.totalAppetizersQty },
+          { name: 'Side Dishes', quantity: newStats.totalSideDishesQty },
+          { name: 'Desserts', quantity: newStats.totalDessertsQty },
+          { name: 'Drinks', quantity: newStats.totalDrinksQty },
+        ]);
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+      }
     };
 
     fetchStats();
@@ -56,23 +83,6 @@ const Dashboard = () => {
     };
 
     fetchNotifications();
-
-    // Fetch sales data for chart
-    const fetchSalesData = async () => {
-      // Simulating API call with setTimeout
-      setTimeout(() => {
-        setSalesData([
-          { name: '00:00', sales: 1000 },
-          { name: '04:00', sales: 1500 },
-          { name: '08:00', sales: 2000 },
-          { name: '12:00', sales: 2500 },
-          { name: '16:00', sales: 3000 },
-          { name: '20:00', sales: 3500 },
-        ]);
-      }, 1000);
-    };
-
-    fetchSalesData();
   }, []);
 
   const fadeInUp = {
@@ -155,13 +165,17 @@ const Dashboard = () => {
             >
               Admin Dashboard
             </motion.h1>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-              <StatCard title="Total Users" value={stats.totalUsers} icon={<FaUsers />} />
-              <StatCard title="Total Orders" value={stats.totalOrders} icon={<FaClipboardList />} />
-              <StatCard title="Menu Items" value={stats.totalMenuItems} icon={<FaUtensils />} />
-              <StatCard title="Total Revenue" value={`$${stats.revenue.toLocaleString()}`} icon={<FaChartLine />} />
-              <StatCard title="Today's Sales" value={`$${stats.todaySales.toLocaleString()}`} icon={<FaDollarSign />} />
-              <StatCard title="Today's Orders" value={stats.todayOrders} icon={<FaShoppingCart />} />
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <StatCard title="Daily Sales" value={`$${stats.dailySales.toLocaleString()}`} icon={<FaDollarSign />} />
+              <StatCard title="Daily Orders" value={stats.dailyOrders.toLocaleString()} icon={<FaClipboardList />} />
+              <StatCard title="Daily AC" value={`$${stats.dailyAC.toFixed(2)}`} icon={<FaChartLine />} />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
+              <StatCard title="Total Ramen" value={stats.totalRamenQty.toLocaleString()} icon={<FaUtensils />} />
+              <StatCard title="Total Appetizers" value={stats.totalAppetizersQty.toLocaleString()} icon={<FaList />} />
+              <StatCard title="Total Side Dishes" value={stats.totalSideDishesQty.toLocaleString()} icon={<FaList />} />
+              <StatCard title="Total Desserts" value={stats.totalDessertsQty.toLocaleString()} icon={<FaList />} />
+              <StatCard title="Total Drinks" value={stats.totalDrinksQty.toLocaleString()} icon={<FaList />} />
             </div>
             <motion.div
               className="bg-white p-6 rounded-lg shadow-md mb-8"
@@ -169,16 +183,16 @@ const Dashboard = () => {
               animate="visible"
               variants={fadeInUp}
             >
-              <h2 className="text-2xl font-bold mb-4">Today's Sales Chart</h2>
+              <h2 className="text-2xl font-bold mb-4">Product Quantity Chart</h2>
               <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={salesData}>
+                <BarChart data={productData}>
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis dataKey="name" />
                   <YAxis />
                   <Tooltip />
                   <Legend />
-                  <Line type="monotone" dataKey="sales" stroke="#8884d8" activeDot={{ r: 8 }} />
-                </LineChart>
+                  <Bar dataKey="quantity" fill="#8884d8" />
+                </BarChart>
               </ResponsiveContainer>
             </motion.div>
           </>

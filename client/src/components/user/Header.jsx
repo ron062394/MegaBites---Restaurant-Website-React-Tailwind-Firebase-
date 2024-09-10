@@ -5,7 +5,7 @@ import Logo from '../utils/Logo';
 import { useLogout } from '../../hooks/useLogout';
 import { useAuthContext } from '../../hooks/useAuthContext';
 import { toast } from 'react-toastify';
-import { FaShoppingCart } from 'react-icons/fa';
+import { FaShoppingCart, FaUser } from 'react-icons/fa';
 
 function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -69,6 +69,9 @@ function Header() {
                 <Link to="/cart" className="mr-4">
                   <FaShoppingCart className="text-2xl text-yellow-400 hover:text-yellow-500 transition duration-300" />
                 </Link>
+                <Link to="/profile" className="mr-4">
+                  <FaUser className="text-2xl text-yellow-400 hover:text-yellow-500 transition duration-300" />
+                </Link>
                 <button onClick={handleLogout} className="hidden md:inline-block btn px-4 py-2 rounded-full shadow-md hover:shadow-lg transition duration-300 border border-yellow-400 font-bold hover:bg-yellow-400 hover:text-gray-900">
                   Logout
                 </button>
@@ -122,6 +125,13 @@ function Header() {
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   <FaShoppingCart className="inline mr-2" /> Cart
+                </Link>
+                <Link 
+                  to="/profile" 
+                  className="block py-2 no-underline text-lg font-medium transition duration-300 hover:text-yellow-400"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  <FaUser className="inline mr-2" /> Profile
                 </Link>
                 <button 
                   onClick={() => {

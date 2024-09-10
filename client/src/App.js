@@ -20,6 +20,14 @@ import AboutUs from './pages/user/AboutUs';
 import Contact from './pages/user/Contact';
 import PrivacyPolicy from './pages/user/PrivacyPolicy';
 import DataDeletion from './pages/user/DataDeletion';
+import Profile from './pages/user/Profile';
+import AdminLogin from './pages/admin/AdminLogin';
+import Sales from './components/admin/Sales';
+
+
+
+
+
 function App() {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -45,16 +53,19 @@ function App() {
           <Route path="/not-found" element={<NotFoundPage />} />
           <Route path="*" element={<Navigate to="/not-found" replace />} />
           <Route path="/loading" element={<Loading />} />
-          <Route path="/product" element={<Product />} />
+          <Route path="/product/:id" element={<Product />} />
           <Route path="/cart" element={<Cart />} />
           <Route path="/checkout" element={<Checkout />} />
-          <Route path="/order-successful" element={<OrderSuccessful />} />
+          <Route path="/order-successful/:id" element={<OrderSuccessful />} />
           <Route path="/careers" element={<Careers />} />
           <Route path="/about-us" element={<AboutUs />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/admin" element={<Dashboard />} />
           <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/data-deletion" element={<DataDeletion />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/admin-login" element={<AdminLogin />} /> 
+          <Route path="/sales" element={<Sales />} />
           {/* Add other routes here */}
         </Routes>
         <Footer />

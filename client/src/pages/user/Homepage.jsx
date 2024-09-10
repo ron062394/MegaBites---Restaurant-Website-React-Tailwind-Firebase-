@@ -1,17 +1,15 @@
 import React from 'react';
 import Hero from '../../components/user/Hero';
-import Menu from './Menu';
-import Testimonials from '../../components/user/Testimonials';
-import Services from '../../components/user/Sevices';
-import SignatureDishes from '../../components/user/SignatureDishes';
+import Services from '../../components/user/Services';
 import OurStory from '../../components/user/OurStory';
-
-
+import Testimonials from '../../components/user/Testimonials';
+import SignatureDishes from '../../components/user/SignatureDishes';
 
 
 const Homepage = () => {
+
   return (
-    <div id='home'>
+    <div>
       <Hero />
       <Services />
       <OurStory />

@@ -4,6 +4,9 @@ import { Link } from 'react-router-dom';
 import { FaTrash, FaShoppingCart, FaArrowLeft, FaSave } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { db } from '../../firebase';
+import { doc, getDoc, updateDoc, deleteDoc, collection, getDocs } from 'firebase/firestore';
+import { useAuthContext } from '../../hooks/useAuthContext';
 
 const Cart = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -11,45 +14,125 @@ const Cart = () => {
   const [loading, setLoading] = useState(true);
   const [couponCode, setCouponCode] = useState('');
   const [discount, setDiscount] = useState(0);
+  const { user } = useAuthContext();
+  const [menuItems, setMenuItems] = useState({});
+
+  const fetchMenuItems = useCallback(async () => {
+    try {
+      const menuSnapshot = await getDocs(collection(db, 'Menu'));
+      const menuData = {};
+      menuSnapshot.forEach((doc) => {
+        menuData[doc.id] = doc.data();
+      });
+      setMenuItems(menuData);
+    } catch (error) {
+      console.error('Error fetching menu items:', error);
+    }
+  }, []);
 
   const fetchCartItems = useCallback(async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
-      // Simulating API call with setTimeout
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      const mockCartItems = [
-        { id: 1, name: 'Classic Tonkotsu Ramen', price: 14.99, quantity: 2, image: "https://i0.wp.com/theaicuisine.com/wp-content/uploads/2023/05/top-down-shot-of-a-bowl-of-fine-dining-Tonkotsu-Ramen-with-sliced-pork-belly-green-onions-and-a-soft-boiled-egg.webp" },
-        { id: 2, name: 'Spicy Miso Ramen', price: 15.99, quantity: 1, image: "https://i0.wp.com/theaicuisine.com/wp-content/uploads/2023/05/top-down-shot-of-a-bowl-of-fine-dining-Tonkotsu-Ramen-with-sliced-pork-belly-green-onions-and-a-soft-boiled-egg.webp" },
-        { id: 3, name: 'Gyoza (6 pcs)', price: 6.99, quantity: 1, image: "https://i0.wp.com/theaicuisine.com/wp-content/uploads/2023/05/top-down-shot-of-a-bowl-of-fine-dining-Tonkotsu-Ramen-with-sliced-pork-belly-green-onions-and-a-soft-boiled-egg.webp" },
-      ];
-      setCartItems(mockCartItems);
+      const cartRef = doc(db, 'Cart', user.uid);
+      const cartSnap = await getDoc(cartRef);
+
+      if (cartSnap.exists()) {
+        const cartData = cartSnap.data();
+        const itemsWithImages = cartData.items.map(item => ({
+          ...item,
+          image: menuItems[item.itemId]?.imageURL || '',
+          category: menuItems[item.itemId]?.category || 'Unknown'
+        }));
+        setCartItems(itemsWithImages);
+        setTotal(cartData.totalAmount);
+      } else {
+        setCartItems([]);
+        setTotal(0);
+      }
     } catch (error) {
       console.error('Error fetching cart items:', error);
       toast.error('Failed to load cart items. Please try again.');
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [user, menuItems]);
 
   useEffect(() => {
-    fetchCartItems();
-  }, [fetchCartItems]);
+    fetchMenuItems();
+  }, [fetchMenuItems]);
+
+  useEffect(() => {
+    if (Object.keys(menuItems).length > 0) {
+      fetchCartItems();
+    }
+  }, [fetchCartItems, menuItems]);
 
   useEffect(() => {
     const newTotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
     setTotal(newTotal - discount);
   }, [cartItems, discount]);
 
-  const removeItem = (id) => {
-    setCartItems(prevItems => prevItems.filter(item => item.id !== id));
-    toast.success('Item removed from cart');
+  const removeItem = async (itemId) => {
+    if (!user) return;
+
+    try {
+      const cartRef = doc(db, 'Cart', user.uid);
+      const cartSnap = await getDoc(cartRef);
+
+      if (cartSnap.exists()) {
+        const cartData = cartSnap.data();
+        const updatedItems = cartData.items.filter(item => item.itemId !== itemId);
+        const updatedTotal = updatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+        await updateDoc(cartRef, {
+          items: updatedItems,
+          totalAmount: updatedTotal,
+          updatedAt: new Date().toISOString()
+        });
+
+        setCartItems(updatedItems);
+        setTotal(updatedTotal);
+        toast.success('Item removed from cart');
+      }
+    } catch (error) {
+      console.error('Error removing item from cart:', error);
+      toast.error('Failed to remove item. Please try again.');
+    }
   };
 
-  const updateQuantity = (id, newQuantity) => {
-    setCartItems(prevItems => prevItems.map(item => 
-      item.id === id ? { ...item, quantity: Math.max(1, newQuantity) } : item
-    ));
-    toast.success('Cart updated');
+  const updateQuantity = async (itemId, newQuantity) => {
+    if (!user) return;
+
+    try {
+      const cartRef = doc(db, 'Cart', user.uid);
+      const cartSnap = await getDoc(cartRef);
+
+      if (cartSnap.exists()) {
+        const cartData = cartSnap.data();
+        const updatedItems = cartData.items.map(item => 
+          item.itemId === itemId ? { ...item, quantity: Math.max(1, newQuantity) } : item
+        );
+        const updatedTotal = updatedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
+
+        await updateDoc(cartRef, {
+          items: updatedItems,
+          totalAmount: updatedTotal,
+          updatedAt: new Date().toISOString()
+        });
+
+        setCartItems(updatedItems);
+        setTotal(updatedTotal);
+        toast.success('Cart updated');
+      }
+    } catch (error) {
+      console.error('Error updating cart:', error);
+      toast.error('Failed to update cart. Please try again.');
+    }
   };
 
   const applyCoupon = () => {
@@ -131,7 +214,7 @@ const Cart = () => {
               <AnimatePresence>
                 {cartItems.map((item, index) => (
                   <motion.div
-                    key={item.id}
+                    key={item.itemId}
                     className={`flex items-center justify-between p-6 ${index !== cartItems.length - 1 ? 'border-b border-gray-700' : ''}`}
                     variants={itemVariants}
                     initial="hidden"
@@ -144,6 +227,7 @@ const Cart = () => {
                       <div>
                         <h3 className="text-xl font-semibold text-white">{item.name}</h3>
                         <p className="text-gray-400">${item.price.toFixed(2)}</p>
+                        <p className="text-gray-500">{item.category}</p>
                       </div>
                     </div>
                     <div className="flex items-center">
@@ -151,7 +235,7 @@ const Cart = () => {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         className="px-3 py-1 bg-gray-800 text-white rounded-l hover:bg-gray-700 transition duration-300"
-                        onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                        onClick={() => updateQuantity(item.itemId, item.quantity - 1)}
                       >
                         -
                       </motion.button>
@@ -160,7 +244,7 @@ const Cart = () => {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         className="px-3 py-1 bg-gray-800 text-white rounded-r hover:bg-gray-700 transition duration-300"
-                        onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                        onClick={() => updateQuantity(item.itemId, item.quantity + 1)}
                       >
                         +
                       </motion.button>
@@ -168,7 +252,7 @@ const Cart = () => {
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         className="ml-6 text-red-500 hover:text-red-400 transition duration-300"
-                        onClick={() => removeItem(item.id)}
+                        onClick={() => removeItem(item.itemId)}
                       >
                         <FaTrash size={20} />
                       </motion.button>
