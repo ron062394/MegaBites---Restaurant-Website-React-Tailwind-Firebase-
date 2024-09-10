@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FaShoppingCart, FaSearch } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { db } from '../../firebase';
 import { collection, getDocs, doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { useAuthContext } from '../../hooks/useAuthContext';
@@ -18,6 +18,7 @@ const Menu = () => {
   const [sortConfig, setSortConfig] = useState({ key: null, direction: 'ascending' });
   const { user } = useAuthContext();
   const { dispatch } = useContext(CartContext);
+  const navigate = useNavigate();
 
   const fetchMenuItems = async () => {
     try {
@@ -36,7 +37,8 @@ const Menu = () => {
 
   const addToCart = async (item) => {
     if (!user) {
-      toast.error('Please sign in to add items to your cart');
+      toast.info('Please sign in to add items to your cart');
+      navigate('/sign-in');
       return;
     }
 

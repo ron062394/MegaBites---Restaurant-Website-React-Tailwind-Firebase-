@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaShoppingCart, FaArrowLeft, FaStar, FaHeart, FaShare } from 'react-icons/fa';
+import { FaShoppingCart, FaArrowLeft, FaHeart, FaShare } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { db } from '../../firebase';
-import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, updateDoc, collection, getDocs } from 'firebase/firestore';
 import { useAuthContext } from '../../hooks/useAuthContext';
 import { CartContext } from '../../context/cartContext';
 
@@ -19,6 +19,7 @@ const Product = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const { user } = useAuthContext();
   const { dispatch } = useContext(CartContext);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchProduct = async () => {
@@ -32,13 +33,22 @@ const Product = () => {
           toast.error('Product not found');
         }
 
-        // For now, we'll keep the mock paired products
-        const mockPairedProducts = [
-          { id: 4, name: "Gyoza (6 pcs)", price: 6.99, image: "https://i0.wp.com/theaicuisine.com/wp-content/uploads/2023/05/top-down-shot-of-a-bowl-of-fine-dining-Tonkotsu-Ramen-with-sliced-pork-belly-green-onions-and-a-soft-boiled-egg.webp" },
-          { id: 5, name: "Karaage", price: 7.99, image: "https://i0.wp.com/theaicuisine.com/wp-content/uploads/2023/05/top-down-shot-of-a-bowl-of-fine-dining-Tonkotsu-Ramen-with-sliced-pork-belly-green-onions-and-a-soft-boiled-egg.webp" },
-          { id: 6, name: "Matcha Ice Cream", price: 4.99, image: "https://i0.wp.com/theaicuisine.com/wp-content/uploads/2023/05/top-down-shot-of-a-bowl-of-fine-dining-Tonkotsu-Ramen-with-sliced-pork-belly-green-onions-and-a-soft-boiled-egg.webp" }
-        ];
-        setPairedProducts(mockPairedProducts);
+        // Fetch all menu items
+        const menuSnapshot = await getDocs(collection(db, 'Menu'));
+        const menuItems = menuSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        // Filter out items of the same category as the current product
+        const differentCategoryItems = menuItems.filter(item => item.category !== productSnap.data().category);
+
+        // Randomly select 3 items for pairing
+        const randomPairedProducts = [];
+        for (let i = 0; i < 3 && differentCategoryItems.length > 0; i++) {
+          const randomIndex = Math.floor(Math.random() * differentCategoryItems.length);
+          randomPairedProducts.push(differentCategoryItems[randomIndex]);
+          differentCategoryItems.splice(randomIndex, 1);
+        }
+
+        setPairedProducts(randomPairedProducts);
 
         setLoading(false);
       } catch (error) {
@@ -53,7 +63,8 @@ const Product = () => {
 
   const addToCart = async () => {
     if (!user) {
-      toast.error('Please sign in to add items to your cart');
+      toast.info('Please sign in to add items to your cart');
+      navigate('/sign-in');
       return;
     }
 
@@ -187,14 +198,6 @@ const Product = () => {
               </div>
               <div className="lg:w-1/2 p-12 bg-white">
                 <h2 className="text-4xl font-bold mb-4 text-gray-800">{product.name}</h2>
-                <div className="flex items-center mb-4">
-                  <div className="flex items-center mr-2">
-                    {[...Array(5)].map((_, i) => (
-                      <FaStar key={i} className={i < Math.floor(product.rating || 0) ? "text-yellow-400" : "text-gray-300"} />
-                    ))}
-                  </div>
-                  <span className="text-gray-600">({product.reviews || 0} reviews)</span>
-                </div>
                 <p className="text-gray-600 mb-6 text-lg">{product.description}</p>
                 <p className="text-3xl font-bold text-gray-800 mb-6">${product.price.toFixed(2)}</p>
                 <div className="flex items-center mb-6">
@@ -257,7 +260,7 @@ const Product = () => {
                 className="bg-white rounded-lg overflow-hidden shadow-lg"
                 whileHover={{ y: -5, transition: { duration: 0.3 } }}
               >
-                <img src={item.image} alt={item.name} className="w-full h-56 object-cover cursor-pointer" />
+                <img src={item.imageURL} alt={item.name} className="w-full h-56 object-cover cursor-pointer" />
                 <div className="p-6">
                   <h4 className="text-2xl font-semibold text-gray-900 mb-2 cursor-pointer">{item.name}</h4>
                   <p className="text-gray-600 mb-4">${item.price.toFixed(2)}</p>
@@ -266,6 +269,11 @@ const Product = () => {
                     whileTap={{ scale: 0.95 }}
                     className="w-full bg-gray-800 text-white px-4 py-2 rounded-full transition duration-300 hover:bg-gray-700"
                     onClick={() => {
+                      if (!user) {
+                        toast.info('Please sign in to add items to your cart');
+                        navigate('/sign-in');
+                        return;
+                      }
                       dispatch({ type: 'ADD_ITEM', payload: { id: item.id, name: item.name, quantity: 1, price: item.price, category: item.category } });
                       toast.success(`Added ${item.name} to cart!`);
                     }}
