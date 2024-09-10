@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaShoppingCart, FaArrowLeft, FaHeart, FaShare } from 'react-icons/fa';
+import { FaShoppingCart, FaArrowLeft, FaShare } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { db } from '../../firebase';
@@ -15,7 +15,6 @@ const Product = () => {
   const [pairedProducts, setPairedProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [quantity, setQuantity] = useState(1);
-  const [isFavorite, setIsFavorite] = useState(false);
   const [selectedImage, setSelectedImage] = useState(0);
   const { user } = useAuthContext();
   const { dispatch } = useContext(CartContext);
@@ -119,11 +118,6 @@ const Product = () => {
     }
   };
 
-  const toggleFavorite = () => {
-    setIsFavorite(!isFavorite);
-    toast.info(isFavorite ? 'Removed from favorites' : 'Added to favorites');
-  };
-
   const shareProduct = () => {
     navigator.clipboard.writeText(window.location.href);
     toast.info('Product link copied to clipboard!');
@@ -183,23 +177,23 @@ const Product = () => {
                     <FaArrowLeft className="mr-2" />
                     Back to Menu
                   </Link>
-                  <Link to="/cart" className="text-gray-600 hover:text-gray-800 transition duration-300 flex items-center">
-                    <FaShoppingCart className="mr-2" />
-                    View Cart
-                  </Link>
                 </div>
-                <motion.img
-                  src={product.imageURL}
-                  alt={product.name}
-                  className="w-full h-auto rounded-lg shadow-lg mb-4"
+                <motion.div
+                  className="w-full h-96 overflow-hidden rounded-lg shadow-lg mb-4"
                   whileHover={{ scale: 1.05 }}
                   transition={{ duration: 0.3 }}
-                />
+                >
+                  <img
+                    src={product.imageURL}
+                    alt={product.name}
+                    className="w-full h-full object-cover"
+                  />
+                </motion.div>
               </div>
-              <div className="lg:w-1/2 p-12 bg-white">
-                <h2 className="text-4xl font-bold mb-4 text-gray-800">{product.name}</h2>
-                <p className="text-gray-600 mb-6 text-lg">{product.description}</p>
-                <p className="text-3xl font-bold text-gray-800 mb-6">${product.price.toFixed(2)}</p>
+              <div className="lg:w-1/2 p-12 bg-white relative">
+                <h2 className="text-4xl font-bold mb-4 text-gray-800 text-left">{product.name}</h2>
+                <p className="text-gray-600 mb-6 text-lg text-left">{product.description}</p>
+                <p className="text-3xl font-bold text-yellow-600 mb-6 text-left">${product.price.toFixed(2)}</p>
                 <div className="flex items-center mb-6">
                   <label htmlFor="quantity" className="mr-4 text-gray-700">Quantity:</label>
                   <input
@@ -208,38 +202,38 @@ const Product = () => {
                     min="1"
                     value={quantity}
                     onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value)))}
-                    className="shadow appearance-none border rounded w-20 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-gray-300 transition duration-300"
+                    className="shadow appearance-none border rounded w-20 py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:ring-2 focus:ring-yellow-300 transition duration-300"
                   />
                 </div>
-                <div className="flex space-x-4 mb-6">
+                <div className="flex flex-col space-y-4 mb-6">
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={addToCart}
-                    className="flex-1 justify-center py-3 px-6 border border-transparent rounded-full shadow-lg text-lg font-medium text-white bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-300 ease-in-out flex items-center"
+                    className="w-full justify-center py-3 px-6 border border-transparent rounded-full shadow-lg text-lg font-medium text-white bg-yellow-500 hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition duration-300 ease-in-out flex items-center"
                   >
                     <FaShoppingCart className="mr-2" />
                     Add to Cart
                   </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={toggleFavorite}
-                    className={`p-3 rounded-full shadow-lg focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-300 ease-in-out ${
-                      isFavorite ? 'bg-red-500 text-white' : 'bg-gray-200 text-gray-600'
-                    }`}
-                  >
-                    <FaHeart />
-                  </motion.button>
-                  <motion.button
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={shareProduct}
-                    className="p-3 rounded-full shadow-lg bg-gray-200 text-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-300 ease-in-out"
-                  >
-                    <FaShare />
-                  </motion.button>
+                  <Link to="/cart" className="w-full">
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      className="w-full justify-center py-3 px-6 border border-yellow-500 rounded-full shadow-lg text-lg font-medium text-yellow-500 bg-white hover:bg-yellow-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition duration-300 ease-in-out flex items-center"
+                    >
+                      <FaShoppingCart className="mr-2" />
+                      View Cart
+                    </motion.button>
+                  </Link>
                 </div>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={shareProduct}
+                  className="absolute bottom-4 right-4 p-3 rounded-full shadow-lg bg-yellow-100 text-yellow-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition duration-300 ease-in-out"
+                >
+                  <FaShare />
+                </motion.button>
               </div>
             </div>
           </motion.div>
@@ -252,7 +246,7 @@ const Product = () => {
           animate="visible"
           variants={fadeInUp}
         >
-          <h3 className="text-3xl font-bold text-white mb-6">Best Paired With</h3>
+          <h3 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-red-600 mb-6">Best Paired With</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {pairedProducts.map((item) => (
               <motion.div
@@ -261,17 +255,19 @@ const Product = () => {
                 whileHover={{ y: -5, transition: { duration: 0.3 } }}
               >
                 <Link to={`/product/${item.id}`}>
-                  <img src={item.imageURL} alt={item.name} className="w-full h-56 object-cover cursor-pointer" />
+                  <div className="w-full h-56 overflow-hidden">
+                    <img src={item.imageURL} alt={item.name} className="w-full h-full object-cover cursor-pointer" />
+                  </div>
                 </Link>
-                <div className="p-6">
+                <div className="p-6 text-left">
                   <Link to={`/product/${item.id}`}>
-                    <h4 className="text-2xl font-semibold text-gray-900 mb-2 cursor-pointer">{item.name}</h4>
+                    <h4 className="text-2xl font-semibold text-gray-900 mb-2 cursor-pointer hover:text-yellow-600 transition duration-300">{item.name}</h4>
                   </Link>
-                  <p className="text-gray-600 mb-4">${item.price.toFixed(2)}</p>
+                  <p className="text-yellow-600 mb-4 font-bold">${item.price.toFixed(2)}</p>
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="w-full bg-gray-800 text-white px-4 py-2 rounded-full transition duration-300 hover:bg-gray-700"
+                    className="w-full bg-yellow-500 text-white px-4 py-2 rounded-full transition duration-300 hover:bg-yellow-400"
                     onClick={() => {
                       if (!user) {
                         toast.info('Please sign in to add items to your cart');
