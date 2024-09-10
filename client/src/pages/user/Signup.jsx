@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { FaLock, FaEnvelope, FaUserPlus, FaGoogle, FaFacebook } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -89,7 +89,7 @@ const Signup = () => {
 
   const renderInputField = (id, label, icon, type = 'text') => (
     <div className="mb-4 relative">
-      <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor={id}>
+      <label className="block text-gray-300 text-sm font-bold mb-2" htmlFor={id}>
         {label}
       </label>
       <div className="relative">
@@ -97,7 +97,7 @@ const Signup = () => {
           {icon}
         </span>
         <input
-          className="shadow appearance-none border rounded-full w-full py-3 pl-10 pr-3 text-gray-700 bg-white leading-tight focus:outline-none focus:ring-2 focus:ring-gray-300 transition duration-300"
+          className="shadow appearance-none border rounded-full w-full py-3 pl-10 pr-3 text-gray-300 bg-gray-800 leading-tight focus:outline-none focus:ring-2 focus:ring-yellow-500 transition duration-300"
           id={id}
           name={id}
           type={type}
@@ -117,7 +117,7 @@ const Signup = () => {
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
       <div className="w-full max-w-5xl">
         <motion.div
-          className="bg-white rounded-2xl shadow-2xl overflow-hidden"
+          className="bg-gray-800 rounded-2xl shadow-2xl overflow-hidden"
           initial="hidden"
           animate="visible"
           variants={fadeInUp}
@@ -137,7 +137,7 @@ const Signup = () => {
                 <h2 className="text-5xl font-bold mb-8">Join Our Community</h2>
                 <p className="mb-10 text-xl leading-relaxed">Sign up to become a part of Tonkotsu Corner! Create your account to enjoy our delicious ramen and explore our menu. Your culinary journey starts here!</p>
                 <div className="mt-10">
-                  <Link to="/menu" className="bg-gray-800 text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-700 transition duration-300 shadow-lg">
+                  <Link to="/menu" className="bg-yellow-500 text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-yellow-400 transition duration-300 shadow-lg">
                     Explore Menu
                   </Link>
                 </div>
@@ -145,8 +145,8 @@ const Signup = () => {
             </div>
 
             {/* Right side - Sign Up Form */}
-            <div className="md:w-1/2 p-12 bg-white">
-              <h2 className="text-4xl font-bold mb-10 text-gray-800 text-center">
+            <div className="md:w-1/2 p-12 bg-gray-800">
+              <h2 className="text-4xl font-bold mb-10 text-white text-center">
                 Create Account
               </h2>
               <form onSubmit={handleSubmit} className="space-y-8">
@@ -158,7 +158,7 @@ const Signup = () => {
                 <motion.button
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="w-full justify-center py-2 px-4 border border-transparent rounded-full shadow-lg text-lg font-medium text-white bg-gray-700 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-300 ease-in-out"
+                  className="w-full justify-center py-2 px-4 border border-transparent rounded-full shadow-lg text-lg font-medium text-white bg-yellow-500 hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition duration-300 ease-in-out"
                   type="submit"
                   disabled={isLoading}
                 >
@@ -170,10 +170,10 @@ const Signup = () => {
               <div className="mt-10">
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300" />
+                    <div className="w-full border-t border-gray-600" />
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-4 bg-white text-gray-500 text-lg">
+                    <span className="px-4 bg-gray-800 text-gray-300 text-lg">
                       Or sign up with
                     </span>
                   </div>
@@ -181,7 +181,7 @@ const Signup = () => {
 
                 <div className="mt-8 space-y-4">
                   <motion.button 
-                    className="w-full inline-flex justify-center py-3 px-5 border border-gray-300 rounded-full shadow-sm bg-white text-lg font-medium text-gray-500 hover:bg-gray-50 transition duration-300 ease-in-out"
+                    className="w-full inline-flex justify-center py-3 px-5 border border-gray-600 rounded-full shadow-sm bg-gray-700 text-lg font-medium text-white hover:bg-gray-600 transition duration-300 ease-in-out"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={handleGoogleSignup}
@@ -190,7 +190,7 @@ const Signup = () => {
                     <span className="ml-3">Sign up with Google</span>
                   </motion.button>
                   <motion.button 
-                    className="w-full inline-flex justify-center py-3 px-5 border border-gray-300 rounded-full shadow-sm bg-white text-lg font-medium text-gray-500 hover:bg-gray-50 transition duration-300 ease-in-out"
+                    className="w-full inline-flex justify-center py-3 px-5 border border-gray-600 rounded-full shadow-sm bg-gray-700 text-lg font-medium text-white hover:bg-gray-600 transition duration-300 ease-in-out"
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
                     onClick={handleFacebookSignup}
@@ -203,7 +203,7 @@ const Signup = () => {
 
               <div className="mt-10">
                 <div className="text-center">
-                  <Link to="/sign-in" className="font-medium text-lg text-gray-600 hover:text-gray-500 transition duration-300">
+                  <Link to="/sign-in" className="font-medium text-lg text-yellow-500 hover:text-yellow-400 transition duration-300">
                     Already have an account? Sign in
                   </Link>
                 </div>

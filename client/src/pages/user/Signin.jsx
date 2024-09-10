@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { FaLock, FaUser, FaSignInAlt, FaFacebook, FaGoogle } from 'react-icons/fa';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -77,7 +77,7 @@ const Signin = () => {
 
   const renderInputField = (id, label, icon, type = 'text') => (
     <div className="mb-4 relative">
-      <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor={id}>
+      <label className="block text-gray-300 text-sm font-bold mb-2" htmlFor={id}>
         {label}
       </label>
       <div className="relative">
@@ -85,7 +85,7 @@ const Signin = () => {
           {icon}
         </span>
         <input
-          className="shadow appearance-none border rounded-full w-full py-3 pl-10 pr-3 text-gray-700 bg-white leading-tight focus:outline-none focus:ring-2 focus:ring-gray-300 transition duration-300"
+          className="shadow appearance-none border rounded-full w-full py-3 pl-10 pr-3 text-gray-300 bg-gray-800 leading-tight focus:outline-none focus:ring-2 focus:ring-yellow-300 transition duration-300"
           id={id}
           name={id}
           type={type}
@@ -105,7 +105,7 @@ const Signin = () => {
       <ToastContainer position="top-right" autoClose={3000} hideProgressBar={false} />
       <div className="w-full max-w-5xl">
         <motion.div
-          className="bg-white rounded-2xl shadow-2xl overflow-hidden"
+          className="bg-gray-800 rounded-2xl shadow-2xl overflow-hidden"
           initial="hidden"
           animate="visible"
           variants={fadeInUp}
@@ -126,7 +126,7 @@ const Signin = () => {
                 <h2 className="text-5xl font-bold mb-8">Welcome Back</h2>
                 <p className="mb-10 text-xl leading-relaxed">Welcome back to Tonkotsu Corner! Sign in to enjoy our delicious ramen and explore our menu. Your next bowl of comfort awaits!</p>
                 <div className="mt-10">
-                  <Link to="/menu" className="bg-gray-800 text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-gray-700 transition duration-300 shadow-lg">
+                  <Link to="/menu" className="bg-yellow-500 text-white px-8 py-4 rounded-full font-bold text-lg hover:bg-yellow-400 transition duration-300 shadow-lg">
                     Explore Menu
                   </Link>
                 </div>
@@ -134,13 +134,13 @@ const Signin = () => {
             </div>
 
             {/* Right side - Sign In Form */}
-            <div className="md:w-1/2 p-12 bg-white">
-              <h2 className="text-4xl font-bold mb-10 text-gray-800 text-center">
+            <div className="md:w-1/2 p-12 bg-gray-800">
+              <h2 className="text-4xl font-bold mb-10 text-white text-center">
                 Sign In
               </h2>
               <form onSubmit={handleSubmit} className="space-y-8">
-                {renderInputField('email', 'Email address', <FaUser className="text-gray-500" />, 'email')}
-                {renderInputField('password', 'Password', <FaLock className="text-gray-500" />, 'password')}
+                {renderInputField('email', 'Email address', <FaUser className="text-gray-400" />, 'email')}
+                {renderInputField('password', 'Password', <FaLock className="text-gray-400" />, 'password')}
                 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center">
@@ -148,14 +148,14 @@ const Signin = () => {
                       id="remember-me"
                       name="remember-me"
                       type="checkbox"
-                      className="h-5 w-5 text-gray-600 focus:ring-gray-500 border-gray-300 rounded"
+                      className="h-5 w-5 text-yellow-500 focus:ring-yellow-400 border-gray-600 rounded"
                     />
-                    <label htmlFor="remember-me" className="ml-3 block text-sm text-gray-700">
+                    <label htmlFor="remember-me" className="ml-3 block text-sm text-gray-300">
                       Remember me
                     </label>
                   </div>
                   <div className="text-sm">
-                    <Link to="/forgot-password" className="font-medium text-gray-600 hover:text-gray-500 transition duration-300">
+                    <Link to="/forgot-password" className="font-medium text-yellow-500 hover:text-yellow-400 transition duration-300">
                       Forgot your password?
                     </Link>
                   </div>
@@ -166,7 +166,7 @@ const Signin = () => {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    className="w-full flex justify-center py-4 px-6 border border-transparent rounded-full shadow-lg text-lg font-medium text-white bg-gray-700 hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition duration-300 ease-in-out"
+                    className="w-full flex justify-center py-4 px-6 border border-transparent rounded-full shadow-lg text-lg font-medium text-white bg-yellow-500 hover:bg-yellow-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400 transition duration-300 ease-in-out"
                     type="submit"
                     disabled={isLoading}
                   >
@@ -179,10 +179,10 @@ const Signin = () => {
               <div className="mt-10">
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center">
-                    <div className="w-full border-t border-gray-300" />
+                    <div className="w-full border-t border-gray-600" />
                   </div>
                   <div className="relative flex justify-center text-sm">
-                    <span className="px-4 bg-white text-gray-500 text-lg">
+                    <span className="px-4 bg-gray-800 text-gray-300 text-lg">
                       Or continue with
                     </span>
                   </div>
@@ -192,7 +192,7 @@ const Signin = () => {
                   {[FaFacebook, FaGoogle].map((Icon, index) => (
                     <motion.button 
                       key={index} 
-                      className="w-full inline-flex justify-center py-3 px-5 border border-gray-300 rounded-full shadow-sm bg-white text-lg font-medium text-gray-500 hover:bg-gray-50 transition duration-300 ease-in-out"
+                      className="w-full inline-flex justify-center py-3 px-5 border border-gray-600 rounded-full shadow-sm bg-gray-700 text-lg font-medium text-gray-300 hover:bg-gray-600 transition duration-300 ease-in-out"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={index === 0 ? handleFacebookLogin : handleGoogleLogin}
@@ -206,7 +206,7 @@ const Signin = () => {
 
               <div className="mt-10">
                 <div className="text-center">
-                  <Link to="/register" className="font-medium text-lg text-gray-600 hover:text-gray-500 transition duration-300">
+                  <Link to="/register" className="font-medium text-lg text-yellow-500 hover:text-yellow-400 transition duration-300">
                     Don't have an account? Sign up
                   </Link>
                 </div>
