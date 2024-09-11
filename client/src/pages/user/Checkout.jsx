@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FaArrowLeft, FaCreditCard, FaPaypal, FaPlus, FaLock, FaMoneyBillWave, FaHandshake, FaUser, FaEnvelope, FaPhone, FaHome } from 'react-icons/fa';
+import { FaArrowLeft, FaCreditCard, FaPlus, FaLock, FaMoneyBillWave, FaHandshake, FaUser, FaEnvelope, FaPhone, FaHome } from 'react-icons/fa';
 import { Link, useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { useAuthContext } from '../../hooks/useAuthContext';
 import { db } from '../../firebase';
 import { doc, getDoc, updateDoc, setDoc, deleteDoc } from 'firebase/firestore';
+import { CardElement, useStripe, useElements } from '@stripe/react-stripe-js';
 
 const Checkout = () => {
   const [cartItems, setCartItems] = useState([]);
@@ -19,15 +20,14 @@ const Checkout = () => {
     email: '',
     phone: '',
     address: '',
-    cardNumber: '',
-    expiryDate: '',
-    cvv: '',
   });
 
   const [savedAddress, setSavedAddress] = useState({});
 
   const navigate = useNavigate();
   const { user } = useAuthContext();
+  const stripe = useStripe();
+  const elements = useElements();
 
   const fetchCartItems = useCallback(async () => {
     if (!user) {
@@ -46,6 +46,7 @@ const Checkout = () => {
         // Calculate total here
         const calculatedTotal = (cartData.items || []).reduce((sum, item) => sum + (item.price * item.quantity), 0);
         setTotal(calculatedTotal);
+        console.log(calculatedTotal);
       } else {
         setCartItems([]);
         setTotal(0);
@@ -113,7 +114,35 @@ const Checkout = () => {
       return;
     }
 
+    if (!stripe || !elements) {
+      toast.error('Stripe has not been initialized.');
+      return;
+    }
+
     try {
+      let paymentMethodId = null;
+
+      if (paymentMethod === 'credit_card') {
+        const cardElement = elements.getElement(CardElement);
+        if (!cardElement) {
+          toast.error('Card element not found. Please refresh the page and try again.');
+          return;
+        }
+
+        const { error, paymentMethod: stripePaymentMethod } = await stripe.createPaymentMethod({
+          type: 'card',
+          card: cardElement,
+        });
+
+        if (error) {
+          console.error('Error creating payment method:', error);
+          toast.error('Payment failed. Please check your card details and try again.');
+          return;
+        }
+
+        paymentMethodId = stripePaymentMethod.id;
+      }
+
       // Create order in Firestore
       const orderRef = doc(db, 'Orders', `${user.uid}_${Date.now()}`);
       await setDoc(orderRef, {
@@ -130,6 +159,7 @@ const Checkout = () => {
           address: formData.address,
         },
         paymentMethod: paymentMethod,
+        paymentMethodId: paymentMethodId,
       });
 
       // Delete cart
@@ -326,18 +356,6 @@ const Checkout = () => {
                   </motion.button>
                   <motion.button
                     type="button"
-                    onClick={() => setPaymentMethod('paypal')}
-                    className={`flex items-center justify-center px-4 py-3 rounded-lg text-lg font-medium transition duration-300 ${
-                      paymentMethod === 'paypal' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
-                    }`}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <FaPaypal className="mr-2" />
-                    PayPal
-                  </motion.button>
-                  <motion.button
-                    type="button"
                     onClick={() => setPaymentMethod('cop')}
                     className={`flex items-center justify-center px-4 py-3 rounded-lg text-lg font-medium transition duration-300 ${
                       paymentMethod === 'cop' ? 'bg-blue-600 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
@@ -371,40 +389,8 @@ const Checkout = () => {
                       className="space-y-6"
                     >
                       <div>
-                        <label className="block mb-2 text-lg">Card Number</label>
-                        <input
-                          type="text"
-                          name="cardNumber"
-                          value={formData.cardNumber}
-                          onChange={handleInputChange}
-                          className="w-full px-4 py-3 bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          required
-                        />
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block mb-2 text-lg">Expiry Date</label>
-                          <input
-                            type="text"
-                            name="expiryDate"
-                            value={formData.expiryDate}
-                            onChange={handleInputChange}
-                            placeholder="MM/YY"
-                            className="w-full px-4 py-3 bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            required
-                          />
-                        </div>
-                        <div>
-                          <label className="block mb-2 text-lg">CVV</label>
-                          <input
-                            type="text"
-                            name="cvv"
-                            value={formData.cvv}
-                            onChange={handleInputChange}
-                            className="w-full px-4 py-3 bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            required
-                          />
-                        </div>
+                        <label className="block mb-2 text-lg">Card Details</label>
+                        <CardElement className="w-full px-4 py-3 bg-gray-700 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500" />
                       </div>
                     </motion.div>
                   </AnimatePresence>
