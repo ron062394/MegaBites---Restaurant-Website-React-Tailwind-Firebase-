@@ -187,7 +187,7 @@ const Checkout = () => {
       toast.success('Order placed successfully!');
       setTimeout(() => {
         navigate(`/order-successful/${orderRef.id}`);
-      }, 2000);
+      }, 500);
     } catch (error) {
       console.error('Error placing order:', error);
       toast.error('Failed to place order. Please try again.');

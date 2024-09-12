@@ -5,7 +5,7 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { db, auth } from '../../firebase';
 import { useAuthContext } from '../../hooks/useAuthContext';
-import { collection, getDocs, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, setDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword, deleteUser } from 'firebase/auth';
 
 const Users = () => {
@@ -121,8 +121,8 @@ const Users = () => {
       const userCredential = await createUserWithEmailAndPassword(auth, newUser.email, newUser.password);
       const firebaseUser = userCredential.user;
 
-      // Add user to Firestore
-      await addDoc(collection(db, 'Admin'), {
+      // Add user to Firestore with the same document ID as the auth UID
+      await setDoc(doc(db, 'Admin', firebaseUser.uid), {
         name: newUser.name,
         email: newUser.email,
         role: newUser.role,

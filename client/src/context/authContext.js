@@ -1,6 +1,7 @@
 import { createContext, useReducer, useEffect } from "react";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "../firebase";
+import { auth, db } from "../firebase";
+import { doc, getDoc } from "firebase/firestore";
 
 export const AuthContext = createContext();
 
@@ -22,21 +23,35 @@ export const AuthContextProvider = ({ children }) => {
         user: null
     });
 
+    const fetchUserRole = async (userId) => {
+        const userRef = doc(db, 'Admin', userId);
+        const userSnap = await getDoc(userRef);
+        
+        if (userSnap.exists()) {
+            return userSnap.data().role;
+        }
+        
+        return 'user'; // Default role if user does not exist
+    };
+
     useEffect(() => {
-        const user = JSON.parse(localStorage.getItem('user'));
-        if (user) {
+        const storedUser = JSON.parse(localStorage.getItem('user'));
+        if (storedUser) {
+            // If we have a stored user, use it initially
             dispatch({
                 type: 'LOGIN',
-                payload: user,
-            })
+                payload: storedUser,
+            });
         }
 
-        const unsubscribe = onAuthStateChanged(auth, (user) => {
+        const unsubscribe = onAuthStateChanged(auth, async (user) => {
             if (user) {
+                const role = await fetchUserRole(user.uid);
+                const userWithRole = { ...user, role };
                 dispatch({
                     type: 'LOGIN',
-                    payload: user,
-                })
+                    payload: userWithRole,
+                });
             } else {
                 dispatch({ type: 'LOGOUT' });
             }

@@ -48,7 +48,7 @@ function AppContent() {
 
   // Protected route for admin users
   const AdminProtectedRoute = ({ children }) => {
-    if (!user || !user.isAdmin) {
+    if (!user || user.role !== 'admin') {
       return <Navigate to="/admin/login" replace />;
     }
     return children;

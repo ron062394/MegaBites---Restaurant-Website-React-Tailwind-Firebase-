@@ -114,7 +114,7 @@ const Dashboard = () => {
     try {
       await logout();
       toast.success('Logged out successfully');
-      navigate('/admin-login');
+      navigate('/admin/login');
     } catch (error) {
       toast.error('Failed to log out');
     }
